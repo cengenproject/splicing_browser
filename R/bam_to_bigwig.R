@@ -12,7 +12,7 @@ bam_dir <- "/home/aw853/scratch60/2021-08-18_alignments"
 output_dir <- "outputs_visualization"
 
 cat("Read in all files\n")
-all_covs <- tibble(path = list.files(bam_dir, pattern = "\\.bam$"),
+all_covs <- tibble(path = list.files(bam_dir, pattern = "\\.bam$", full.names = TRUE),
                    sample = stringr::str_split_fixed(path, "\\.", 2)[,1],
                    neuron = stringr::str_split_fixed(sample, "r", 2)[,1],
                    replicate = stringr::str_split_fixed(sample, "r", 2)[,2]) %>%
