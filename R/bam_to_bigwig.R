@@ -24,7 +24,7 @@ all_covs <- tibble(path = list.files(bam_dir, pattern = "\\.bam$", full.names = 
                    neuron = stringr::str_split_fixed(sample, "r", 2)[,1],
                    replicate = stringr::str_split_fixed(sample, "r", 2)[,2])
 
-plan(multicore, workers = 15)
+plan(multicore, workers = 6)
 
 cat("Read bams and save as RLE.\n")
 tic()

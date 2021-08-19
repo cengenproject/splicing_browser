@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --partition=general
 #SBATCH --job-name=R_bam_to_bigwig
-#SBATCH -c 15
-#SBATCH --mem=80G
+#SBATCH -c 6
+#SBATCH --mem=100G
 #SBATCH --time=1-18:10:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=alexis.weinreb@yale.edu
