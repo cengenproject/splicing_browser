@@ -55,26 +55,19 @@ reduced_cov <- all_covs %>%
   group_by(neuron) %>%
   summarize(mean_coverage = list(pmean(coverage)))
 
-walk2(reduced_cov$neuron, reduced_cov$mean_coverage,
-      ~ rtracklayer::export.bw(object = .y,
-                               con = file.path(output_dir, "means", paste0("mean_",.x, ".bw"))))
+# walk2(reduced_cov$neuron, reduced_cov$mean_coverage,
+#       ~ rtracklayer::export.bw(object = .y,
+#                                con = file.path(output_dir, "means", paste0("mean_",.x, ".bw"))))
 
 
 cat("Write the global min, max, and average\n")
-reduced_cov %>%
-  pull(mean_coverage) %>%
-  pmin() %>%
-  rtracklayer::export.bw(file.path(output_dir, "global", "minimum.bw"))
+min_coverage <- do.call(pmin, reduced_cov$mean_coverage)
+max_coverage <- do.call(pmax, reduced_cov$mean_coverage)
+mean_coverage <- do.call(pmean, reduced_cov$mean_coverage)
 
-reduced_cov %>%
-  pull(mean_coverage) %>%
-  pmax() %>%
-  rtracklayer::export.bw(file.path(output_dir, "global", "maximum.bw"))
-
-reduced_cov %>%
-  pull(mean_coverage) %>%
-  pmean() %>%
-  rtracklayer::export.bw(file.path(output_dir, "global", "mean.bw"))
+rtracklayer::export.bw(file.path(output_dir, "global", "minimum.bw"))
+rtracklayer::export.bw(file.path(output_dir, "global", "maximum.bw"))
+rtracklayer::export.bw(file.path(output_dir, "global", "mean.bw"))
 
 
 cat("\n\nAll done.\n")
