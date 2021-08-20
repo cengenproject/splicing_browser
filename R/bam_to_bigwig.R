@@ -6,8 +6,8 @@
 # Initializations ----
 library(GenomicAlignments)
 library(tidyverse)
-library(furrr)
-library(tictoc)
+# library(furrr)
+# library(tictoc)
 
 
 
@@ -63,10 +63,10 @@ reduced_cov <- all_covs %>%
 cat("Write the global min, max, and average\n")
 min_coverage <- do.call(pmin, reduced_cov$mean_coverage)
 max_coverage <- do.call(pmax, reduced_cov$mean_coverage)
-mean_coverage <- do.call(pmean, reduced_cov$mean_coverage)
-
 rtracklayer::export.bw(file.path(output_dir, "global", "minimum.bw"))
 rtracklayer::export.bw(file.path(output_dir, "global", "maximum.bw"))
+
+mean_coverage <- do.call(pmean, reduced_cov$mean_coverage)
 rtracklayer::export.bw(file.path(output_dir, "global", "mean.bw"))
 
 
