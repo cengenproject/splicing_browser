@@ -24,19 +24,20 @@ all_covs <- tibble(path = list.files(bam_dir, pattern = "\\.bam$", full.names = 
                    neuron = stringr::str_split_fixed(sample, "r", 2)[,1],
                    replicate = stringr::str_split_fixed(sample, "r", 2)[,2])
 
-plan(multicore, workers = 6)
-
-cat("Read bams and save as RLE.\n")
-tic()
-future_walk2(all_covs$path,
-             all_covs$sample,
-             ~ saveRDS(coverage(readGAlignmentPairs(.x)),
-                       paste0(output_dir,"/raw_RLEs/",.y,".rds")))
-toc()
+## Already saved
+# plan(multicore, workers = 6)
+# 
+# cat("Read bams and save as RLE.\n")
+# tic()
+# future_walk2(all_covs$path,
+#              all_covs$sample,
+#              ~ saveRDS(coverage(readGAlignmentPairs(.x)),
+#                        paste0(output_dir,"/raw_RLEs/",.y,".rds")))
+# toc()
 
 cat("Read RLEs.\n")
 all_covs <- all_covs %>%
-  mutate(coverage = map(sample, ~ readRDS(paste0(.x,".rds"))))
+  mutate(coverage = map(sample, ~ readRDS(paste0(output_dir,"/raw_RLEs/",.x,".rds"))))
 
 
 cat("Write the single neurons\n")
