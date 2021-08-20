@@ -40,10 +40,10 @@ all_covs <- all_covs %>%
   mutate(coverage = map(sample, ~ readRDS(paste0(output_dir,"/raw_RLEs/",.x,".rds"))))
 
 
-cat("Write the single neurons\n")
-walk2(all_covs$sample, all_covs$coverage,
-      ~ rtracklayer::export.bw(object = .y,
-                               con = file.path(output_dir, "single_neur", paste0(.x, ".bw"))))
+# cat("Write the single neurons\n")
+# walk2(all_covs$sample, all_covs$coverage,
+#       ~ rtracklayer::export.bw(object = .y,
+#                                con = file.path(output_dir, "single_neur", paste0(.x, ".bw"))))
 
 
 cat("Write the averages per neuron class\n")
@@ -53,7 +53,7 @@ pmean <- function(list_of_covs){
 
 reduced_cov <- all_covs %>%
   group_by(neuron) %>%
-  summarize(mean_coverage = pmean(coverage))
+  summarize(mean_coverage = list(pmean(coverage)))
 
 walk2(reduced_cov$neuron, reduced_cov$mean_coverage,
       ~ rtracklayer::export.bw(object = .y,
