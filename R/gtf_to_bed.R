@@ -22,27 +22,29 @@ wb_gtf <- rtracklayer::import(wb_get_gtf_path(277))
 grList_by_tx <- split(wb_gtf, wb_gtf$transcript_id)
 
 all_exons <- endoapply(grList_by_tx,
-                       \(gr) gr[gr$type == "exon"])
+                       function(gr) gr[gr$type == "exon"])
 all_transcripts <- endoapply(grList_by_tx,
-                             \(gr) gr[gr$type == "transcript"])
+                             function(gr) gr[gr$type == "transcript"])
 # all_UTR <- endoapply(grList_by_tx,
 #                              \(gr) gr[gr$type %in% c("three_prime_utr","five_prime_utr")])
 all_start_codons <- endoapply(grList_by_tx,
-                              \(gr) gr[gr$type == "start_codon"])
+                              function(gr) gr[gr$type == "start_codon"])
 all_stop_codons <- endoapply(grList_by_tx,
-                              \(gr) gr[gr$type == "stop_codon"])
+                             function(gr) gr[gr$type == "stop_codon"])
 
 # save(all_exons,all_transcripts,all_stop_codons,
 #      file = "data/tmp_grangelists_for_gtf2bigbed.rda")
 
 ## Compute BED fields ----
 
-chrom <- vapply(seqnames(all_transcripts), \(.x) as.character(.x@values), character(1L))
+chrom <- vapply(seqnames(all_transcripts),
+                function(.x) as.character(.x@values), character(1L))
 chromStart <- as.integer(start(all_transcripts) -1)
 chromEnd <- as.integer(end(all_transcripts))
 name <- names(all_transcripts)
 score <- rep(1000, length(all_transcripts))
-strand <- vapply(strand(all_transcripts), \(.x) as.character(.x@values), character(1L))
+strand <- vapply(strand(all_transcripts), 
+                 function(.x) as.character(.x@values), character(1L))
 
 thickStart <- as.integer(start(all_start_codons))
 thickEnd <- as.integer(end(all_stop_codons))
@@ -61,19 +63,19 @@ for(cur_transcr in seq_along(all_exons)){
 
 
 ## Check results ----
-lapply(list(chrom, chromStart, chromEnd, name,score,strand,thickStart,
-            thickEnd,itemRgb,blockCount,blockSizes,blockStarts),
-       length) |>
-  purrr::reduce(identical)
+# lapply(list(chrom, chromStart, chromEnd, name,score,strand,thickStart,
+#             thickEnd,itemRgb,blockCount,blockSizes,blockStarts),
+#        length) |>
+#   purrr::reduce(identical)
 
 
 
 ## Write to disk ----
 
-paste(chrom, chromStart, chromEnd, name,score,strand,thickStart,
-      thickEnd,itemRgb,blockCount,blockSizes,blockStarts,
-      sep = "\t") |>
-  readr::write_lines("data/WS277_canonical_geneset.bed12")
+readr::write_lines(paste(chrom, chromStart, chromEnd, name,score,strand,thickStart,
+                         thickEnd,itemRgb,blockCount,blockSizes,blockStarts,
+                         sep = "\t"),
+                   "data/WS277_canonical_geneset.bed12")
 
 ## For bigBed ----
 
