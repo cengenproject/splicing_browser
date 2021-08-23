@@ -6,8 +6,7 @@
 # Initializations ----
 library(GenomicAlignments)
 library(tidyverse)
-# library(furrr)
-# library(tictoc)
+library(furrr)
 
 
 
