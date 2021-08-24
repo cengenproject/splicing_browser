@@ -35,7 +35,7 @@ all_stop_codons <- endoapply(grList_by_tx,
                              function(gr) gr[gr$type == "stop_codon"])
 
 save(all_exons,all_transcripts,all_stop_codons,
-     file = "data/tmp_grangelists_for_gtf2bigbed.rda")
+     file = "outputs_visualization/references/tmp_grangelists_for_gtf2bigbed.rda")
 
 
 
@@ -92,5 +92,5 @@ wb_all_seqlengths <- data.frame(names(wb_fasta),
 rm(wb_fasta)
 
 readr::write_tsv(wb_all_seqlengths,
-                 file = "data/chrom.WS277.sizes",
+                 file = "outputs_visualization/references/chrom.WS277.sizes",
                  col_names = FALSE)
