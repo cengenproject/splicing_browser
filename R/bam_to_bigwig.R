@@ -35,7 +35,9 @@ future_walk2(all_covs$path,
                     cat("      treating: ", .y,"\n")
                     cur_bam <- readGAlignmentPairs(.x)
                     cur_rle <- coverage(cur_bam)
+                    chrom_names <- names(cur_rle)
                     cur_rle <- 1e6 * cur_rle / length(cur_bam) # as CPM
+                    names(cur_rle) <- chrom_names
                     saveRDS(cur_rle,
                             paste0(output_dir,"/raw_RLEs/",.y,".rds"))
                   } else{
