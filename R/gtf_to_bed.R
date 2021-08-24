@@ -4,7 +4,6 @@ library(GenomicFeatures)
 ## Import ----
 wb_gtf <- rtracklayer::import(wb_get_gtf_path(277))
 
-wb_gtf <- wb_gtf[1:1000]
 
 ## // Not working: save with rtracklayer function ----
 
@@ -18,12 +17,12 @@ wb_gtf <- wb_gtf[1:1000]
 # export(wb_gtf, "data/WS277_canonical_geneset.bed")
 
 
+## Split into separate GRangesLists ----
 
 if(file.exists( "outputs_visualization/references/tmp_grangelists_for_gtf2bigbed.rda")){
   cat("Loading cahed file...\n")
   load("outputs_visualization/references/tmp_grangelists_for_gtf2bigbed.rda")
 } else{
-  ## Split into separate GRangesLists ----
   cat("split\n")
   grList_by_tx <- split(wb_gtf, wb_gtf$transcript_id)
   
@@ -43,8 +42,6 @@ if(file.exists( "outputs_visualization/references/tmp_grangelists_for_gtf2bigbed
        file = "outputs_visualization/references/tmp_grangelists_for_gtf2bigbed.rda")
   
 }
-
-
 
 
 
