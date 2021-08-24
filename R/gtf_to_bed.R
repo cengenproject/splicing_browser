@@ -74,6 +74,14 @@ for(stcod in spliced_stcods){
 
 thickStart <- as.integer(all_stcods)
 
+# "When there is no thick part, thickStart and thickEnd are usually set to the chromStart position."
+
+no_thickStart <- which(is.na(thickStart))
+thickStart[no_thickStart] <- chromStart[no_thickStart]
+
+
+
+
 # stop codons, same problem
 all_stcods <- end(all_stop_codons)
 lengths_stcods <- vapply(all_stcods, length, integer(1L))
@@ -88,6 +96,10 @@ for(stcod in spliced_stcods){
 }
 
 thickEnd <- as.integer(all_stcods)
+
+no_thickEnd <- which(is.na(thickEnd))
+thickEnd[no_thickEnd] <- chromStart[no_thickEnd]
+
 
 itemRgb <- rep(".", length(all_transcripts))
 
