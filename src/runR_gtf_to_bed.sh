@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --partition=general
-#SBATCH --job-name=R_bam_to_bigwig
+#SBATCH --job-name=R_gtf_to_bed
 #SBATCH -c 1
 #SBATCH --mem=80G
 #SBATCH --time=1-18:10:00
