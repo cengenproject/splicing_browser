@@ -117,7 +117,7 @@ cat("Write to disk\n")
 readr::write_lines(paste(chrom, chromStart, chromEnd, name,score,strand,thickStart,
                          thickEnd,itemRgb,blockCount,blockSizes,blockStarts,
                          sep = "\t"),
-                   "data/WS277_canonical_geneset.bed12")
+                   "outputs_visualization/references/WS277_canonical_geneset.bed12")
 
 
 ## For bigBed ----
