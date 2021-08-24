@@ -32,22 +32,22 @@ future_walk2(all_covs$path,
              all_covs$sample,
              ~ {
                   if(! file.exists(paste0(output_dir,"/raw_RLEs/",.y,".rds"))){
-                    cat("      treating: ", .x,"\n")
+                    cat("      treating: ", .y,"\n")
                     cur_bam <- readGAlignmentPairs(.x)
                     cur_rle <- coverage(cur_bam)
                     cur_rle <- 1e6 * cur_rle / length(cur_bam) # as CPM
                     saveRDS(cur_rle,
                             paste0(output_dir,"/raw_RLEs/",.y,".rds"))
                   } else{
-                    cat("      already exists: ",.x,"\n")
+                    cat("      already exists: ",.y,"\n")
                   }
                   
                 })
 cat("----toc: ", proc.time()[["elapsed"]] - tic,"\n\n"); rm(tic)
 
-# cat("Read RLEs.\n")
-# all_covs <- all_covs %>%
-#   mutate(coverage = map(sample, ~ readRDS(paste0(output_dir,"/raw_RLEs/",.x,".rds"))))
+cat("Read RLEs.\n")
+all_covs <- all_covs %>%
+  mutate(coverage = map(sample, ~ readRDS(paste0(output_dir,"/raw_RLEs/",.x,".rds"))))
 
 
 cat("Write the single samples\n")
