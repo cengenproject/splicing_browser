@@ -101,7 +101,7 @@ no_thickEnd <- which(is.na(thickEnd))
 thickEnd[no_thickEnd] <- chromStart[no_thickEnd]
 
 
-itemRgb <- rep(".", length(all_transcripts))
+itemRgb <- rep("255,0,0", length(all_transcripts))
 
 cat("Compute BED12\n")
 # block_counts <- vapply(all_exons, length, integer(1L))

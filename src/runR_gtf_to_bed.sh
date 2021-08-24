@@ -16,10 +16,11 @@ R --slave -f R/gtf_to_bed.R
 
 echo "---------------  Converting to bigBed ---------------------"
 out_dir="outputs_visualization/references"
+exec_dir="/home/aw853/.utilities/ucsc-tools"
 
+$exec_dir/bedSort $out_dir/WS277_canonical_geneset.bed12 \
+                  $out_dir/WS277_canonical_geneset.sorted.bed
 
-bedSort $out_dir/WS277_canonical_geneset.bed12 $out_dir/WS277_canonical_geneset.sorted.bed
-
-bedToBigBed $out_dir/WS277_canonical_geneset.sorted.bed \
-            $out_dir/chrom.WS277.sizes \
-            $out_dir/WS277_canonical_geneset.bb
+$exec_dir/bedToBigBed $out_dir/WS277_canonical_geneset.sorted.bed \
+                      $out_dir/chrom.WS277.sizes \
+                      $out_dir/WS277_canonical_geneset.bb
