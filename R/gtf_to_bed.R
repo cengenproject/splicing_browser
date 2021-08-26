@@ -75,9 +75,17 @@ blockStarts <- character(length(all_transcripts))
 blockSizes <- character(length(all_transcripts))
 for(cur_transcr in seq_along(all_exons)){
   blockCount[[cur_transcr]] <- length(all_exons[[cur_transcr]])
-  blockStarts[[cur_transcr]] <- paste0(start(ranges(all_exons[[cur_transcr]])) - chromStart[[cur_transcr]] -1
-                                       , collapse=",")
-  blockSizes[[cur_transcr]] <- paste0(width(ranges(all_exons[[cur_transcr]])), collapse=",")
+  if(strand[[cur_transcr]] == "+"){
+    blockStarts[[cur_transcr]] <- paste0(start(ranges(all_exons[[cur_transcr]])) - chromStart[[cur_transcr]] -1
+                                         , collapse=",")
+    blockSizes[[cur_transcr]] <- paste0(width(ranges(all_exons[[cur_transcr]])), collapse=",")
+  } else{
+    blockStarts[[cur_transcr]] <- paste0(rev(start(ranges(all_exons[[cur_transcr]])) - chromStart[[cur_transcr]] -1),
+                                         collapse=",")
+    blockSizes[[cur_transcr]] <- paste0(rev(width(ranges(all_exons[[cur_transcr]]))),
+                                        collapse=",")
+  }
+  
 }
 
 
