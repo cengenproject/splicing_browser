@@ -58,8 +58,13 @@ strand <- vapply(strand(all_transcripts),
                  function(.x) as.character(.x@values), character(1L))
 
 
+lengths_stcods <- vapply(all_st_codons, length, integer(1L))
+no_st_cod <- which(lengths_stcods == 0)
+
 thickStart <- min(start(all_st_codons))
+thickStart[no_st_cod] <- chromStart[no_st_cod]
 thickEnd <- max(end(all_st_codons))
+thickEnd[no_st_cod] <- chromEnd[no_st_cod]
 
 itemRgb <- rep("255,0,0", length(all_transcripts))
 
