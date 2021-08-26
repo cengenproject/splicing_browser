@@ -36,7 +36,7 @@ if(file.exists( "outputs_visualization/references/tmp_grangelists_for_gtf2bigbed
   all_st_codons <- endoapply(grList_by_tx,
                                 function(gr) gr[gr$type %in% c("start_codon","stop_codon")])
   
-  save(all_exons,all_transcripts,all_stop_codons,all_start_codons,
+  save(all_exons,all_transcripts,all_st_codons,
        file = "outputs_visualization/references/tmp_grangelists_for_gtf2bigbed.rda")
   
 }
