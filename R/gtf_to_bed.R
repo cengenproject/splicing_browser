@@ -33,10 +33,8 @@ if(file.exists( "outputs_visualization/references/tmp_grangelists_for_gtf2bigbed
                                function(gr) gr[gr$type == "transcript"])
   # all_UTR <- endoapply(grList_by_tx,
   #                              \(gr) gr[gr$type %in% c("three_prime_utr","five_prime_utr")])
-  all_start_codons <- endoapply(grList_by_tx,
-                                function(gr) gr[gr$type == "start_codon"])
-  all_stop_codons <- endoapply(grList_by_tx,
-                               function(gr) gr[gr$type == "stop_codon"])
+  all_st_codons <- endoapply(grList_by_tx,
+                                function(gr) gr[gr$type %in% c("start_codon","stop_codon")])
   
   save(all_exons,all_transcripts,all_stop_codons,all_start_codons,
        file = "outputs_visualization/references/tmp_grangelists_for_gtf2bigbed.rda")
@@ -59,47 +57,9 @@ score <- rep(1000, length(all_transcripts))
 strand <- vapply(strand(all_transcripts), 
                  function(.x) as.character(.x@values), character(1L))
 
-# start codons: problem when splicing within codon
-all_stcods <- start(all_start_codons)
-lengths_stcods <- vapply(all_stcods, length, integer(1L))
 
-spliced_stcods <- which(lengths_stcods == 2)
-for(stcod in spliced_stcods){
-  if(strand(all_start_codons[[stcod]])@values == "+"){
-    all_stcods[[stcod]] <- min(all_stcods[[stcod]])
-  } else{
-    all_stcods[[stcod]] <- max(all_stcods[[stcod]])
-  }
-}
-
-thickStart <- as.integer(all_stcods)
-
-# "When there is no thick part, thickStart and thickEnd are usually set to the chromStart position."
-
-no_thickStart <- which(is.na(thickStart))
-thickStart[no_thickStart] <- chromStart[no_thickStart]
-
-
-
-
-# stop codons, same problem
-all_stcods <- end(all_stop_codons)
-lengths_stcods <- vapply(all_stcods, length, integer(1L))
-
-spliced_stcods <- which(lengths_stcods == 2)
-for(stcod in spliced_stcods){
-  if(strand(all_stop_codons[[stcod]])@values == "-"){
-    all_stcods[[stcod]] <- max(all_stcods[[stcod]])
-  } else{
-    all_stcods[[stcod]] <- min(all_stcods[[stcod]])
-  }
-}
-
-thickEnd <- as.integer(all_stcods)
-
-no_thickEnd <- which(is.na(thickEnd))
-thickEnd[no_thickEnd] <- chromStart[no_thickEnd]
-
+thickStart <- min(start(all_st_codons))
+thickEnd <- max(end(all_st_codons))
 
 itemRgb <- rep("255,0,0", length(all_transcripts))
 
