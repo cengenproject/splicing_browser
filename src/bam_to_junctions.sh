@@ -59,7 +59,7 @@ if [ ${#samplePath[@]} -lt 1 ]
   exit 1
 fi
   
-
+echo "Treating ${#samplePath[@]} samples."
 
 
 
@@ -68,7 +68,7 @@ start_dir=$(pwd)
 cd $out_dir
 
 
-for((i=0; i<$nb_samples; i++))
+for((i=0; i<${#samplePath[@]}; i++))
 do
   sample=$(basename -s .bam ${samplePath[$i]})
   
