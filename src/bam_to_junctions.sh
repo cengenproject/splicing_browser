@@ -74,6 +74,7 @@ do
   
   
   megadepth ${samplePath[$i]} --all-junctions --prefix $sample --threads $SLURM_CPUS_PER_TASK
+  megadepth_process_jx_output $sample.all_jxs.tsv
   
   echo
   echo
