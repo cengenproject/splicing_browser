@@ -37,9 +37,9 @@ then
 fi
 
 
-if [ ! -d out_dir ]
+if [ ! -d $out_dir ]
 then
-  echo "Error: destination directory does not exist. If this is a new pipeline version, you need to create it yourself: out_dir"
+  echo "Error: destination directory does not exist. If this is a new pipeline version, you need to create it yourself: $out_dir"
   exit 1
 fi
 
