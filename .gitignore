@@ -5,3 +5,6 @@
 intermediates
 slurm*
 data
+outs
+logs
+
