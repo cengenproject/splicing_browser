@@ -2,7 +2,8 @@
 
 # pmean: parallel mean of a group of Rle.
 # The main function is implemented in C++
-Rcpp::sourceCpp(cpmean)
+Rcpp::sourceCpp("src/Rle_utils.cpp")
+
 pmean <- function(...) cpmean(list(...))
 
 
