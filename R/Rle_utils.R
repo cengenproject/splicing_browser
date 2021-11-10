@@ -36,7 +36,7 @@ apply_per_position <- function(list_of_rlelist, .f, ...){
                            byrow = TRUE,
                            nrow = length(list_of_rlelist),
                            ncol = chrom_length)
-    out[[cur_chrom]] <- Rle(apply(chrom_as_mat, 2, .f, ..., simplify = TRUE))
+    out[[cur_chrom]] <- Rle(apply(chrom_as_mat, 2, .f, ...))
   }
   out <- RleList(out)
   names(out) <- names(list_of_rlelist[[1]])
