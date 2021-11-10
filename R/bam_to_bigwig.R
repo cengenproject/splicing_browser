@@ -4,16 +4,23 @@
 
 
 # Initializations ----
-library(GenomicAlignments)
-library(tidyverse)
-library(furrr)
+suppressPackageStartupMessages({
+  library(GenomicAlignments)
+  library(tidyverse)
+  library(furrr)
+  library(Rcpp)
+})
+
+source("R/Rle_utils.R",
+       echo = FALSE)
 
 
+cat("Starting\n\n")
 
 
-bam_dir <- "/home/aw853/scratch60/2021-08-18_alignments"
+bam_dir <- "/home/aw853/scratch60/2021-11-09_alignments"
 
-output_dir <- "outputs_visualization"
+output_dir <- "outs/211109_coverage_bw/"
 
 
 
@@ -23,7 +30,11 @@ all_covs <- tibble(path = list.files(bam_dir, pattern = "\\.bam$", full.names = 
                    neuron = stringr::str_split_fixed(sample, "r", 2)[,1],
                    replicate = stringr::str_split_fixed(sample, "r", 2)[,2])
 
-# Already saved
+
+
+
+# Convert bams to RLEs on disk ----
+
 plan(multicore, workers = 6)
 
 cat("Read bams and save as RLE.\n")
@@ -31,7 +42,9 @@ tic <- proc.time()[["elapsed"]]
 future_walk2(all_covs$path,
              all_covs$sample,
              ~ {
-                  if(! file.exists(paste0(output_dir,"/raw_RLEs/",.y,".rds"))){
+                  if(file.exists(paste0(output_dir,"/raw_RLEs/",.y,".rds"))){
+                    cat("      already exists: ",.y,"\n")
+                  } else{
                     cat("      treating: ", .y,"\n")
                     cur_bam <- readGAlignmentPairs(.x)
                     cur_rle <- coverage(cur_bam)
@@ -40,29 +53,37 @@ future_walk2(all_covs$path,
                     names(cur_rle) <- chrom_names
                     saveRDS(cur_rle,
                             paste0(output_dir,"/raw_RLEs/",.y,".rds"))
-                  } else{
-                    cat("      already exists: ",.y,"\n")
                   }
-                  
                 })
 cat("----toc: ", proc.time()[["elapsed"]] - tic,"\n\n"); rm(tic)
 
+plan(sequential)
+
+# Load RLEs ----
 cat("Read RLEs.\n")
 all_covs <- all_covs %>%
+  slice_head(n=4)%>%
   mutate(coverage = map(sample, ~ readRDS(paste0(output_dir,"/raw_RLEs/",.x,".rds"))))
 
 
+# Write single samples BW ----
 cat("Write the single samples\n")
 tic <- proc.time()[["elapsed"]]
 walk2(all_covs$sample, all_covs$coverage,
       ~ rtracklayer::export.bw(object = .y,
-                               con = file.path(output_dir, "single_neur", paste0(.x, ".bw"))))
+                               con = file.path(output_dir,
+                                               "single_sample",
+                                               paste0(.x, ".bw"))))
 cat("----toc: ", proc.time()[["elapsed"]] - tic,"\n\n"); rm(tic)
+
+
+
+# Per neuron average ----
 
 
 cat("Compute and write the averages per neuron class\n")
 pmean <- function(list_of_covs){
-  reduce(list_of_covs, `+`) / length(list_of_covs)
+  purrr::reduce(list_of_covs, `+`) / length(list_of_covs)
 }
 
 tic <- proc.time()[["elapsed"]]
@@ -70,36 +91,36 @@ reduced_cov <- all_covs %>%
   group_by(neuron) %>%
   summarize(mean_coverage = list(pmean(coverage)))
 
+# save to disk
 walk2(reduced_cov$neuron, reduced_cov$mean_coverage,
       ~ rtracklayer::export.bw(object = .y,
                                con = file.path(output_dir, "means", paste0("mean_",.x, ".bw"))))
 cat("----toc: ", proc.time()[["elapsed"]] - tic,"\n\n"); rm(tic)
 
 
-cat("Write the global min and max\n")
+
+# Global metrics (all samples) ----
+
+cat("Write the global metrics\n")
 tic <- proc.time()[["elapsed"]]
-min_coverage <- do.call(pmin, reduced_cov$mean_coverage)
-max_coverage <- do.call(pmax, reduced_cov$mean_coverage)
 
-rtracklayer::export.bw(min_coverage, file.path(output_dir, "global", "minimum.bw"))
-rtracklayer::export.bw(max_coverage, file.path(output_dir, "global", "maximum.bw"))
-cat("----toc: ", proc.time()[["elapsed"]] - tic,"\n\n"); rm(tic)
+global_mean <- pmean(reduced_cov$mean_coverage)
+rtracklayer::export.bw(global_mean, file.path(output_dir, "global", "mean.bw"))
+cat("----mean done: ", proc.time()[["elapsed"]] - tic,"\n\n")
+
+global_median <- pmedian(reduced_cov$mean_coverage)
+rtracklayer::export.bw(global_median, file.path(output_dir, "global", "median.bw"))
+cat("----median done: ", proc.time()[["elapsed"]] - tic,"\n\n")
+
+global_lower <- plower(reduced_cov$mean_coverage)
+rtracklayer::export.bw(global_lower, file.path(output_dir, "global", "lower.bw"))
+cat("----lower done: ", proc.time()[["elapsed"]] - tic,"\n\n")
+
+global_higher <- phigher(reduced_cov$mean_coverage)
+rtracklayer::export.bw(global_mean, file.path(output_dir, "global", "higher.bw"))
+cat("----higher done: ", proc.time()[["elapsed"]] - tic,"\n\n")
 
 
-cat("Write the global mean\n")
-tic <- proc.time()[["elapsed"]]
-partial_sum <- reduced_cov$mean_coverage[[1]]
-for(cur_cov in 2:nrow(reduced_cov)){
-  cat("--  ", cur_cov)
-  partial_sum <- partial_sum + reduced_cov$mean_coverage[[cur_cov]]
-  cat(" - toc: ", proc.time()[["elapsed"]] - tic,"\n")
-}
-
-mean_coverage <- partial_sum / nrow(reduced_cov)
-
-# mean_coverage <- do.call(pmean, reduced_cov$mean_coverage)
-rtracklayer::export.bw(mean_coverage, file.path(output_dir, "global", "mean.bw"))
-cat("----toc: ", proc.time()[["elapsed"]] - tic,"\n\n"); rm(tic)
 
 cat("\n\nAll done.\n")
 

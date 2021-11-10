@@ -158,3 +158,6 @@ stopifnot(all.equal(unlist(do.call(phigher,
 # check = FALSE)
 
 
+rm(test_list)
+rm(test_list2)
+rm(test_list_of_SimpleRleList)
