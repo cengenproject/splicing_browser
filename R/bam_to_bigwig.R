@@ -42,7 +42,7 @@ tic <- proc.time()[["elapsed"]]
 future_walk2(all_covs$path,
              all_covs$sample,
              ~ {
-                  if(file.exists(paste0(output_dir,"/raw_RLEs/",.y,".rds"))){
+                  if(file.exists(paste0(output_dir,"raw_RLEs/",.y,".rds"))){
                     cat("      already exists: ",.y,"\n")
                   } else{
                     cat("      treating: ", .y,"\n")
@@ -52,7 +52,7 @@ future_walk2(all_covs$path,
                     cur_rle <- 1e6 * cur_rle / length(cur_bam) # as CPM
                     names(cur_rle) <- chrom_names
                     saveRDS(cur_rle,
-                            paste0(output_dir,"/raw_RLEs/",.y,".rds"))
+                            paste0(output_dir,"raw_RLEs/",.y,".rds"))
                   }
                 })
 cat("----toc: ", proc.time()[["elapsed"]] - tic,"\n\n"); rm(tic)
@@ -63,7 +63,7 @@ plan(sequential)
 cat("Read RLEs.\n")
 all_covs <- all_covs %>%
   slice_head(n=4)%>%
-  mutate(coverage = map(sample, ~ readRDS(paste0(output_dir,"/raw_RLEs/",.x,".rds"))))
+  mutate(coverage = map(sample, ~ readRDS(paste0(output_dir,"raw_RLEs/",.x,".rds"))))
 
 
 # Write single samples BW ----
@@ -108,15 +108,15 @@ global_mean <- pmean(reduced_cov$mean_coverage)
 rtracklayer::export.bw(global_mean, file.path(output_dir, "global", "mean.bw"))
 cat("----mean done: ", proc.time()[["elapsed"]] - tic,"\n\n")
 
-global_median <- pmedian(reduced_cov$mean_coverage)
+global_median <- do.call(pmedian, reduced_cov$mean_coverage)
 rtracklayer::export.bw(global_median, file.path(output_dir, "global", "median.bw"))
 cat("----median done: ", proc.time()[["elapsed"]] - tic,"\n\n")
 
-global_lower <- plower(reduced_cov$mean_coverage)
+global_lower <- do.call(plower, reduced_cov$mean_coverage)
 rtracklayer::export.bw(global_lower, file.path(output_dir, "global", "lower.bw"))
 cat("----lower done: ", proc.time()[["elapsed"]] - tic,"\n\n")
 
-global_higher <- phigher(reduced_cov$mean_coverage)
+global_higher <- do.call(phigher, reduced_cov$mean_coverage)
 rtracklayer::export.bw(global_mean, file.path(output_dir, "global", "higher.bw"))
 cat("----higher done: ", proc.time()[["elapsed"]] - tic,"\n\n")
 
