@@ -18,7 +18,7 @@ source("R/Rle_utils.R",
 cat("Starting\n\n")
 
 
-bam_dir <- "/home/aw853/scratch60/2021-11-09_alignments"
+bam_dir <- "/home/aw853/scratch60/2021-11-08_alignments"
 
 output_dir <- "outs/211109_coverage_bw/"
 
