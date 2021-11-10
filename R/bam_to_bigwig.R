@@ -62,7 +62,6 @@ plan(sequential)
 # Load RLEs ----
 cat("Read RLEs.\n")
 all_covs <- all_covs %>%
-  slice_head(n=4)%>%
   mutate(coverage = map(sample, ~ readRDS(paste0(output_dir,"raw_RLEs/",.x,".rds"))))
 
 
