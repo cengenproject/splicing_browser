@@ -1,4 +1,4 @@
-
+# Start ----
 
 
 
@@ -7,7 +7,11 @@ test_list_of_SimpleRleList <- list(
   RleList(c(I = Rle(c(1,1,1,1,8,8,8,2,2,2,2)),
             II = Rle(c(2,2,2,5,5,5,2,2,2,2,3))), compress = FALSE),
   RleList(c(I = Rle(c(2,2,2,5,5,5,2,2,2,2,3)),
-            II = Rle(c(1,1,1,1,8,8,8,2,2,2,2))), compress = FALSE)
+            II = Rle(c(1,1,1,1,8,8,8,2,2,2,2))), compress = FALSE),
+  RleList(c(I = Rle(c(3,3,2,4,4,5,2,6,6,6,6)),
+            II = Rle(c(1,5,8,8,8,8,8,8,2,2,2))), compress = FALSE),
+  RleList(c(I = Rle(c(12,12,12,12,12,12,3,3,3,3,3)),
+            II = Rle(c(9,9,9,5,5,5,5,5,2,2,2))), compress = FALSE)
 )
 
 # direct_quantile <- function(x, i) sort(x)[1+floor(length(x)*i)]
@@ -45,7 +49,7 @@ apply_per_position <- function(list_of_rlelist, .f, ...){
 }
 
 
-Rcpp::sourceCpp("src/Rle_utils.cpp")
+Rcpp::sourceCpp("src/Rle_utils.cpp", echo = FALSE)
 
 
 
