@@ -7,7 +7,7 @@
 set -e
 
 ref_dir='/var/www/public_data/references'
-base_dir='/var/www/public_data/splicing/210824_coverage_bw'
+base_dir='/var/www/public_data/splicing/211109_coverage_bw'
 jbrowse_dir='/var/www/html/jbrowse2'
 config_file=$jbrowse_dir'/config.json'
 
