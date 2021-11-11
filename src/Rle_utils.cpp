@@ -4,7 +4,8 @@ using namespace Rcpp;
 
 /*** R
 # For basic testing
-test_list <- list(1:5, 2:6, 7:3)
+test_list <- list(1:5, 2:6, 7:3, 8:4, 6:10)
+stopifnot(length(unique(sapply(test_list, length))) == 1)
 
 p_apply <- function(my_list, .f, ...){
   stopifnot(dplyr::n_distinct(sapply(my_list, length)) == 1)
@@ -149,7 +150,7 @@ stopifnot(all.equal(cpmedian(test_list2),
 */
 
 
-// then 10th percentile
+// then lower value
 // [[Rcpp::export]]
 NumericVector c_low_percentile(List x) {
   int nb=x.size();
@@ -167,9 +168,10 @@ NumericVector c_low_percentile(List x) {
     }
   }
   
-  //Apply median to each column
+  //not actual percentile (as peak only in 1 neur type
+  // would have ~3 samples, out of 140 that gets missed)
   
-  int nth = 1+nb/10;
+  int nth = 3;
   NumericVector out(n);
   for(int j=0; j<n; j++){
     NumericVector cur_col = mat(_,j);
@@ -179,9 +181,10 @@ NumericVector c_low_percentile(List x) {
 }
 
 /*** R
-direct_quantile <- function(x, i) sort(x)[1+floor(length(x)*i)]
+# direct_quantile <- function(x, i) sort(x)[1+floor(length(x)*i)]
+direct_rank <- function(x, i) sort(x)[i]
 stopifnot(all.equal(c_low_percentile(test_list),
-                    p_apply(test_list, direct_quantile, .1)))
+                    p_apply(test_list, direct_rank, 3)))
 test_list2 <- list(c( 1, 1, 2, 2, 2),
                    c(12,12, 1, 7, 8),
                    c( 2, 2, 3, 3, 3),
@@ -189,7 +192,7 @@ test_list2 <- list(c( 1, 1, 2, 2, 2),
                    c(10,11,12,13,14))
 
 stopifnot(all.equal(c_low_percentile(test_list2),
-                    p_apply(test_list2, direct_quantile, .1)))
+                    p_apply(test_list2, direct_rank, 3)))
 */
 
 
@@ -213,9 +216,10 @@ NumericVector c_high_percentile(List x) {
     }
   }
   
-  //Apply median to each column
+  //not actual percentile (as peak only in 1 neur type
+  // would have ~3 samples, out of 140 that gets missed)
   
-  int nth = 1+9*nb/10;
+  int nth = nb-3;
   NumericVector out(n);
   for(int j=0; j<n; j++){
     NumericVector cur_col = mat(_,j);
@@ -226,7 +230,7 @@ NumericVector c_high_percentile(List x) {
 
 /*** R
 stopifnot(all.equal(c_high_percentile(test_list),
-                    p_apply(test_list, direct_quantile, .9)))
+                    p_apply(test_list, direct_rank, length(test_list) -3)))
 test_list2 <- list(c( 1, 1, 2, 2, 2),
                    c(12,12, 1, 7, 8),
                    c( 2, 2, 3, 3, 3),
@@ -234,7 +238,7 @@ test_list2 <- list(c( 1, 1, 2, 2, 2),
                    c(10,11,12,13,14))
 
 stopifnot(all.equal(c_high_percentile(test_list2),
-                    p_apply(test_list2, direct_quantile, .9)))
+                    p_apply(test_list2, direct_rank, length(test_list2) -3)))
 */
 
 

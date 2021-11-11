@@ -10,7 +10,8 @@ test_list_of_SimpleRleList <- list(
             II = Rle(c(1,1,1,1,8,8,8,2,2,2,2))), compress = FALSE)
 )
 
-direct_quantile <- function(x, i) sort(x)[1+floor(length(x)*i)]
+# direct_quantile <- function(x, i) sort(x)[1+floor(length(x)*i)]
+direct_rank <- function(x, i) sort(x)[i]
 
 
 # Expect a list of SimpleRleList, where each has one Rle per chromosome.
@@ -127,7 +128,7 @@ setMethod("plower", "RleList", function(...)
 stopifnot(all.equal(unlist(do.call(plower,
                                    test_list_of_SimpleRleList)),
                     suppressWarnings(unlist(apply_per_position(test_list_of_SimpleRleList,
-                                                               direct_quantile, .1)))))
+                                                               direct_rank, 3)))))
 
 
 
@@ -149,7 +150,7 @@ setMethod("phigher", "RleList", function(...)
 stopifnot(all.equal(unlist(do.call(phigher,
                                    test_list_of_SimpleRleList)),
                     suppressWarnings(unlist(apply_per_position(test_list_of_SimpleRleList,
-                                                               direct_quantile, .9)))))
+                                                               direct_rank, length(test_list_of_SimpleRleList)-3)))))
 
 # bench::mark(do.call(phigher,
 #                     test_list_of_SimpleRleList),
