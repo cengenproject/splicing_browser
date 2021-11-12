@@ -29,8 +29,7 @@ gff_contents$Name[gff_contents$type == "gene"] <- i2s(gff_contents$Name[gff_cont
                                                       warn_missing = TRUE)
 
 
-# Need to rename CDS Parents too!
-gff_contents$ID[gff_contents$type == "mRNA"] <- gff_contents$Name[gff_contents$type == "mRNA"]
+
 
 rtracklayer::export(gff_contents, paste0("data/c_elegans.WS",WS,".canonical_geneset.gff3"), format = "gff3")
 
