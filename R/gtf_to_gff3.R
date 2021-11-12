@@ -7,11 +7,13 @@
 library(wbData)
 library(tidyverse)
 
-gids <- wb_load_gene_ids(277)
+WS <- 281
+
+gids <- wb_load_gene_ids(WS)
 
 
 
-gtf_txdb <- GenomicFeatures::makeTxDbFromGFF(wb_get_gtf_path(277))
+gtf_txdb <- GenomicFeatures::makeTxDbFromGFF(wb_get_gtf_path(WS))
 
 gff_contents <- rtracklayer::asGFF(gtf_txdb)
 
@@ -30,5 +32,5 @@ gff_contents$Name[gff_contents$type == "gene"] <- i2s(gff_contents$Name[gff_cont
 # Need to rename CDS Parents too!
 gff_contents$ID[gff_contents$type == "mRNA"] <- gff_contents$Name[gff_contents$type == "mRNA"]
 
-rtracklayer::export(gff_contents, "data/c_elegans.WS277.canonical_geneset.gff3", format = "gff3")
+rtracklayer::export(gff_contents, paste0("data/c_elegans.WS",WS,".canonical_geneset.gff3"), format = "gff3")
 
