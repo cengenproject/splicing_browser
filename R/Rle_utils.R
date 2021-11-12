@@ -154,7 +154,7 @@ setMethod("phigher", "RleList", function(...)
 stopifnot(all.equal(unlist(do.call(phigher,
                                    test_list_of_SimpleRleList)),
                     suppressWarnings(unlist(apply_per_position(test_list_of_SimpleRleList,
-                                                               direct_rank, length(test_list_of_SimpleRleList)-3)))))
+                                                               direct_rank, length(test_list_of_SimpleRleList)-2)))))
 
 # bench::mark(do.call(phigher,
 #                     test_list_of_SimpleRleList),

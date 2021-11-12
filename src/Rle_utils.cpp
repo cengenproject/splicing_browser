@@ -219,7 +219,7 @@ NumericVector c_high_percentile(List x) {
   //not actual percentile (as peak only in 1 neur type
   // would have ~3 samples, out of 140 that gets missed)
   
-  int nth = nb-3;
+  int nth = nb-2;
   NumericVector out(n);
   for(int j=0; j<n; j++){
     NumericVector cur_col = mat(_,j);
@@ -230,7 +230,7 @@ NumericVector c_high_percentile(List x) {
 
 /*** R
 stopifnot(all.equal(c_high_percentile(test_list),
-                    p_apply(test_list, direct_rank, length(test_list) -3)))
+                    p_apply(test_list, direct_rank, length(test_list) -2)))
 test_list2 <- list(c( 1, 1, 2, 2, 2),
                    c(12,12, 1, 7, 8),
                    c( 2, 2, 3, 3, 3),
@@ -238,7 +238,7 @@ test_list2 <- list(c( 1, 1, 2, 2, 2),
                    c(10,11,12,13,14))
 
 stopifnot(all.equal(c_high_percentile(test_list2),
-                    p_apply(test_list2, direct_rank, length(test_list2) -3)))
+                    p_apply(test_list2, direct_rank, length(test_list2) -2)))
 */
 
 
