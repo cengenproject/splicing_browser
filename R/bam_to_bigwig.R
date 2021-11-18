@@ -20,7 +20,7 @@ cat("Starting\n\n")
 
 bam_dir <- "/home/aw853/scratch60/2021-11-08_alignments"
 
-output_dir <- "outs/211112_coverage_bw/"
+output_dir <- "outs/211118_coverage_bw/"
 
 
 
@@ -107,15 +107,15 @@ global_mean <- pmean(reduced_cov$mean_coverage)
 rtracklayer::export.bw(global_mean, file.path(output_dir, "global", "mean.bw"))
 cat("----mean done: ", proc.time()[["elapsed"]] - tic,"\n\n")
 
-global_median <- do.call(pmedian, reduced_cov$mean_coverage)
+global_median <- do.call(pmedian, all_covs$coverage)
 rtracklayer::export.bw(global_median, file.path(output_dir, "global", "median.bw"))
 cat("----median done: ", proc.time()[["elapsed"]] - tic,"\n\n")
 
-global_lower <- do.call(plower, reduced_cov$mean_coverage)
+global_lower <- do.call(plower, all_covs$coverage)
 rtracklayer::export.bw(global_lower, file.path(output_dir, "global", "lower.bw"))
 cat("----lower done: ", proc.time()[["elapsed"]] - tic,"\n\n")
 
-global_higher <- do.call(phigher, reduced_cov$mean_coverage)
+global_higher <- do.call(phigher, all_covs$coverage)
 rtracklayer::export.bw(global_mean, file.path(output_dir, "global", "higher.bw"))
 cat("----higher done: ", proc.time()[["elapsed"]] - tic,"\n\n")
 
