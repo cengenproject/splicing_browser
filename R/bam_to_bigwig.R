@@ -116,7 +116,7 @@ rtracklayer::export.bw(global_lower, file.path(output_dir, "global", "lower.bw")
 cat("----lower done: ", proc.time()[["elapsed"]] - tic,"\n\n")
 
 global_higher <- do.call(phigher, all_covs$coverage)
-rtracklayer::export.bw(global_mean, file.path(output_dir, "global", "higher.bw"))
+rtracklayer::export.bw(global_higher, file.path(output_dir, "global", "higher.bw"))
 cat("----higher done: ", proc.time()[["elapsed"]] - tic,"\n\n")
 
 
