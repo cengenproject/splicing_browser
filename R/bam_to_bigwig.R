@@ -20,7 +20,7 @@ cat("Starting\n\n")
 
 bam_dir <- "/home/aw853/scratch60/2021-11-08_alignments"
 
-output_dir <- "outs/211118_coverage_bw/"
+output_dir <- "outs/211130_coverage_bw/"
 
 
 
