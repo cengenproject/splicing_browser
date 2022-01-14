@@ -98,10 +98,10 @@ combine_sj <- function(sj_file, fn){
 }
 
 
-write_bed <- function(sj_file, out_path){
+write_bed <- function(sj_file, out_path, min_reads = 2){
   
   gr <- sj_file %>%
-    filter(count_unique > 2) %>%
+    filter(count_unique > min_reads) %>%
     arrange(chr, start, end) %>%
     mutate(name = format(count_unique, big.mark = ","),
            score = round(1000*count_unique/max(count_unique))) %>%
@@ -120,7 +120,7 @@ all_files <- tibble(path = list.files(sj_dir, full.names = TRUE),
   mutate(sj_file = map(path, read_sj_file)) %>%
   group_by(sample) %>%
   summarize(sj_file_combined = list(combine_sj(sj_file, rowSums))) %>%
-  mutate(out_path = paste0(output_dir, "single_sample/", sample, ".bed"))
+  mutate(out_path = paste0(output_dir, "single_sample/", sample, "_sj.bed"))
 
 
 
@@ -136,7 +136,7 @@ all_neurons <- all_files %>%
   mutate(neuron = stringr::str_split_fixed(sample, "r", 2)[,1]) %>%
   group_by(neuron) %>%
   summarize(sj_file_combined = list(combine_sj(sj_file_combined, rowSums))) %>%
-  mutate(out_path = paste0(output_dir, "single_neuron/", neuron, ".bed"))
+  mutate(out_path = paste0(output_dir, "single_neuron/", neuron, "_sj.bed"))
 
 walk2(all_neurons$sj_file_combined, all_neurons$out_path, write_bed)
 
@@ -149,14 +149,16 @@ all_samples <- all_neurons %>%
   summarize(sj_file_combined = list(combine_sj(sj_file_combined, rowSums)))
 
 write_bed(all_samples$sj_file_combined[[1]],
-          paste0(output_dir, "global/sum_all.bed"))
+          paste0(output_dir, "global/sum_sj.bed"),
+          min_reads = 20)
 
 all_samples_max <- all_neurons %>%
   ungroup() %>%
   summarize(sj_file_combined = list(combine_sj(sj_file_combined, matrixStats::rowMaxs)))
 
 write_bed(all_samples_max$sj_file_combined[[1]],
-          paste0(output_dir, "global/max_neuron.bed"))
+          paste0(output_dir, "global/max_sj.bed"),
+          min_reads = 20)
 
 
 all_samples_min <- all_neurons %>%
@@ -164,7 +166,8 @@ all_samples_min <- all_neurons %>%
   summarize(sj_file_combined = list(combine_sj(sj_file_combined, matrixStats::rowMins)))
 
 write_bed(all_samples_min$sj_file_combined[[1]],
-          paste0(output_dir, "global/min_neuron.bed"))
+          paste0(output_dir, "global/min_sj.bed"),
+          min_reads = 1)
 
 
 

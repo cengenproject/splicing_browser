@@ -53,7 +53,7 @@ done
 
 # Prepare for export
 cd data/outs/
-tar czf ${out_version}_browser.tar.gz ${out_version}_browser/*/*/*.bb ${out_version}_browser/*/*/*.bw
+tar czf ${out_version}_browser.tar.gz ${out_version}_browser/*/*/*.bb #${out_version}_browser/*/*/*.bw
 
 echo "Send to vps with:"
 echo "scp $(pwd)/${out_version}_browser.tar.gz cengen-vps:/var/www/public_data/splicing"
