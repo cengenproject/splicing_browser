@@ -39,7 +39,7 @@ Rscript R/sj_to_bed.R $WS $out_version
 
 # convert to BigBed
 chr_sizes="/home/aw853/project/references/WS281/chrom.sizes"
-for file in */*.bed
+for file in $out_dir/sj/*/*.bed
 do
   bedToBigBed $file $chr_sizes ${file%.bed}.bb
 done
