@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --partition=general
 #SBATCH --job-name=gen_browser_data
-#SBATCH -c 1
+#SBATCH -c 6
 #SBATCH --mem=70G
 #SBATCH --time=18:10:00
 #SBATCH --mail-type=ALL
@@ -16,6 +16,7 @@ set -e
 WS="281"
 out_version="220114"
 bams_combined="/home/aw853/scratch60/2021-11-08_alignments"
+bams_orig="/SAY/standard/mh588-CC1100-MEDGEN/bulk_alignments/bsn9_bams/"
 
 
 # Initializations
@@ -31,7 +32,7 @@ mkdir -p $out_dir
 
 
 
-# Junction processing
+## Junction processing ----
 
 mkdir $out_dir/sj $out_dir/sj/single_sample $out_dir/sj/single_neuron $out_dir/sj/global
 
@@ -45,15 +46,35 @@ do
 done
 
 
-# Coverage processing
-# mkdir $out_dir/coverage $out_dir/coverage/raw_RLEs $out_dir/coverage/single_sample
-# mkdir $out_dir/coverage/single_neuron $out_dir/coverage/global
+
+
+## Coverage processing
+
+# merge the bams
+
+if [ ! -d $bams_combined ]
+then
+  mkdir $bams_combined
+  sbatch src/merge_bams.sh $bams_orig $bams_combined
+elif [ -z "$(ls -A $bams_combined)" ]
+then
+   sbatch src/merge_bams.sh $bams_orig $bams_combined
+else
+   echo "bams already combined."
+fi
+
+
+
+mkdir $out_dir/coverage $out_dir/coverage/raw_RLEs $out_dir/coverage/single_sample
+mkdir $out_dir/coverage/single_neuron $out_dir/coverage/global
+
+Rscript R/bam_to_bigwig.R $WS $out_version $bams_combined
 
 
 
 # Prepare for export
 cd data/outs/
-tar czf ${out_version}_browser.tar.gz ${out_version}_browser/*/*/*.bb #${out_version}_browser/*/*/*.bw
+tar czf ${out_version}_browser.tar.gz ${out_version}_browser/*/*/*.bb ${out_version}_browser/*/*/*.bw
 
 echo "Send to vps with:"
 echo "scp $(pwd)/${out_version}_browser.tar.gz cengen-vps:/var/www/public_data/splicing"

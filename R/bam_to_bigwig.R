@@ -1,5 +1,5 @@
 # Visualization of raw alignments: take in bams, make coverage (Rle) objects from them,
-# save the Rle as well as useful vizualisations: a mean per neuron type, and a min and max across
+# save the Rle as well as useful visualizations: a mean per neuron type, and a min and max across
 # neuron type.
 
 
@@ -15,17 +15,33 @@ source("R/Rle_utils.R",
        echo = FALSE)
 
 
-cat("Starting\n\n")
+cat("Starting: ", date())
+
+# check arguments ----
+args <- commandArgs(TRUE)
+
+WS <- args[[1]]
+out_version <- args[[2]]
+in_dir <- args[[3]]
+
+if(! WS %in% 230:300){
+  stop("WS not recognized: ", WS)
+}
 
 
-bam_dir <- "/home/aw853/scratch60/2021-11-08_alignments"
-
-output_dir <- "outs/211130_coverage_bw/"
+cat("Arguments, WS - ", WS, ", version - ", out_version, ", input dir - ", in_dir)
 
 
 
 
-all_covs <- tibble(path = list.files(bam_dir, pattern = "\\.bam$", full.names = TRUE),
+# bam_dir <- "/home/aw853/scratch60/2021-11-08_alignments"
+
+output_dir <- paste0("data/outs/",out_version,"_browser/coverage/")
+
+
+
+
+all_covs <- tibble(path = list.files(in_dir, pattern = "\\.bam$", full.names = TRUE),
                    sample = stringr::str_split_fixed(basename(path), "\\.", 2)[,1],
                    neuron = stringr::str_split_fixed(sample, "r", 2)[,1],
                    replicate = stringr::str_split_fixed(sample, "r", 2)[,2])
@@ -72,7 +88,7 @@ walk2(all_covs$sample, all_covs$coverage,
       ~ rtracklayer::export.bw(object = .y,
                                con = file.path(output_dir,
                                                "single_sample",
-                                               paste0(.x, ".bw"))))
+                                               paste0(.x, "_cov.bw"))))
 cat("----toc: ", proc.time()[["elapsed"]] - tic,"\n\n"); rm(tic)
 
 
@@ -93,7 +109,7 @@ reduced_cov <- all_covs %>%
 # save to disk
 walk2(reduced_cov$neuron, reduced_cov$mean_coverage,
       ~ rtracklayer::export.bw(object = .y,
-                               con = file.path(output_dir, "means", paste0("mean_",.x, ".bw"))))
+                               con = file.path(output_dir, "single_neuron", paste0(.x, "_cov.bw"))))
 cat("----toc: ", proc.time()[["elapsed"]] - tic,"\n\n"); rm(tic)
 
 
@@ -104,20 +120,15 @@ cat("Write the global metrics\n")
 tic <- proc.time()[["elapsed"]]
 
 global_mean <- pmean(reduced_cov$mean_coverage)
-rtracklayer::export.bw(global_mean, file.path(output_dir, "global", "mean.bw"))
-cat("----mean done: ", proc.time()[["elapsed"]] - tic,"\n\n")
+rtracklayer::export.bw(global_mean, file.path(output_dir, "global", "mean_cov.bw"))
 
-global_median <- do.call(pmedian, all_covs$coverage)
-rtracklayer::export.bw(global_median, file.path(output_dir, "global", "median.bw"))
-cat("----median done: ", proc.time()[["elapsed"]] - tic,"\n\n")
+min_cov <- do.call(pmin, reduced_cov$mean_coverage)
+rtracklayer::export.bw(min_cov, file.path(output_dir, "global", "min_cov.bw"))
 
-global_lower <- do.call(plower, all_covs$coverage)
-rtracklayer::export.bw(global_lower, file.path(output_dir, "global", "lower.bw"))
-cat("----lower done: ", proc.time()[["elapsed"]] - tic,"\n\n")
+max_cov <- do.call(pmax, reduced_cov$mean_coverage)
+rtracklayer::export.bw(max_cov, file.path(output_dir, "global", "max_cov.bw"))
 
-global_higher <- do.call(phigher, all_covs$coverage)
-rtracklayer::export.bw(global_higher, file.path(output_dir, "global", "higher.bw"))
-cat("----higher done: ", proc.time()[["elapsed"]] - tic,"\n\n")
+cat("----global done: ", proc.time()[["elapsed"]] - tic,"\n\n")
 
 
 
