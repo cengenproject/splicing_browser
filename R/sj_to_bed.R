@@ -1,7 +1,7 @@
 # From the SJ.out.tab file output by STAR, to a bigbed file to display in browser.
 # Meant to run on cluster.
 
-cat("Starting: ", date())
+cat("Starting: ", date(),"\n")
 
 # check arguments ----
 args <- commandArgs(TRUE)
@@ -13,7 +13,7 @@ if(! WS %in% 230:300){
   stop("WS not recognized: ", WS)
 }
 
-cat("Arguments, WS - ", WS, ", version - ", out_version)
+cat("Arguments, WS - ", WS, ", version - ", out_version,"\n")
 
 
 
@@ -30,7 +30,7 @@ ref_cache <- paste0("/home/aw853/project/references/WS", WS)
 path_chr_sizes <- file.path(ref_cache, "chrom.sizes")
 
 # Chromosome sizes ----
-
+cat("Init chr sizes.\n")
 if(file.exists(path_chr_sizes)){
   chr_sizes <- read.delim(path_chr_sizes, col.names=c("name","size"))
 } else{
@@ -112,6 +112,7 @@ write_bed <- function(sj_file, out_path){
 
 
 #~ read individual samples ----
+cat("Read individual files.\n")
 
 all_files <- tibble(path = list.files(sj_dir, full.names = TRUE),
                     replicate = stringr::str_split_fixed(basename(path), "\\.", 2)[,1],
@@ -129,7 +130,7 @@ walk2(all_files$sj_file_combined, all_files$out_path, write_bed)
 
 
 #~ neuron summed ----
-
+cat("Sum neurons.\n")
 all_neurons <- all_files %>%
   select(-out_path) %>%
   mutate(neuron = stringr::str_split_fixed(sample, "r", 2)[,1]) %>%
@@ -141,7 +142,7 @@ walk2(all_neurons$sj_file_combined, all_neurons$out_path, write_bed)
 
 
 #~ Global ----
-
+cat("Global descriptions.\n")
 # sum of all samples
 all_samples <- all_neurons %>%
   ungroup() %>%
@@ -168,7 +169,7 @@ write_bed(all_samples_min$sj_file_combined[[1]],
 
 
 
-cat("done.")
+cat("done.\n")
 
 
 

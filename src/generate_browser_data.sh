@@ -7,6 +7,7 @@
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=alexis.weinreb@yale.edu
 
+set -e
 
 # this script takes the output from a "bsn" alignment pipeline, and calls R scripts to
 # generate the data to visualize in the genome browser.
@@ -36,6 +37,13 @@ mkdir $out_dir/sj $out_dir/sj/single_sample $out_dir/sj/single_neuron $out_dir/s
 
 Rscript R/sj_to_bed.R $WS $out_version
 
+# convert to BigBed
+chr_sizes="/home/aw853/project/references/WS281/chrom.sizes"
+for file in */*.bed
+do
+  bedToBigBed $file $chr_sizes ${file%.bed}.bb
+done
+
 
 # Coverage processing
 # mkdir $out_dir/coverage $out_dir/coverage/raw_RLEs $out_dir/coverage/single_sample
@@ -45,5 +53,8 @@ Rscript R/sj_to_bed.R $WS $out_version
 
 # Prepare for export
 cd data/outs/
-tar xzf ${out_version}_browser.tar.gz ${out_version}_browser
+tar czf ${out_version}_browser.tar.gz ${out_version}_browser/*/*/*.bb ${out_version}_browser/*/*/*.bw
+
+echo "Send to vps with:"
+echo "scp $(pwd)/${out_version}_browser.tar.gz cengen-vps:/var/www/public_data/splicing"
 
