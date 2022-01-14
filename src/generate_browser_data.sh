@@ -25,11 +25,8 @@ module load R
 
 out_dir=data/outs/${out_version}_browser
 
-mkdir -p out_dir
+mkdir -p $out_dir
 
-
-
-Rscript R/test.R $WS $out_version
 
 
 
