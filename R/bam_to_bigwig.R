@@ -15,7 +15,7 @@ source("R/Rle_utils.R",
        echo = FALSE)
 
 
-cat("Starting: ", date())
+cat("Starting: ", date(), "\n")
 
 # check arguments ----
 args <- commandArgs(TRUE)
@@ -29,7 +29,7 @@ if(! WS %in% 230:300){
 }
 
 
-cat("Arguments, WS - ", WS, ", version - ", out_version, ", input dir - ", in_dir)
+cat("Arguments, WS - ", WS, ", version - ", out_version, ", input dir - ", in_dir,"\n")
 
 
 

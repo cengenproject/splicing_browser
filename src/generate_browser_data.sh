@@ -2,7 +2,7 @@
 #SBATCH --partition=general
 #SBATCH --job-name=gen_browser_data
 #SBATCH -c 6
-#SBATCH --mem=70G
+#SBATCH --mem=100G
 #SBATCH --time=18:10:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=alexis.weinreb@yale.edu
@@ -55,10 +55,10 @@ done
 if [ ! -d $bams_combined ]
 then
   mkdir $bams_combined
-  sbatch src/merge_bams.sh $bams_orig $bams_combined
+  srun src/merge_bams.sh $bams_orig $bams_combined
 elif [ -z "$(ls -A $bams_combined)" ]
 then
-   sbatch src/merge_bams.sh $bams_orig $bams_combined
+  srun src/merge_bams.sh $bams_orig $bams_combined
 else
    echo "bams already combined."
 fi
