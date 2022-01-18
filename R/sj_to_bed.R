@@ -1,9 +1,19 @@
 # From the SJ.out.tab file output by STAR, to a bigbed file to display in browser.
 # Meant to run on cluster.
 
+# Initializations ----
+
+
 cat("Starting: ", date(),"\n")
 
-# check arguments ----
+
+#~ packages ----
+suppressPackageStartupMessages({
+  library(tidyverse)
+})
+
+
+#~ check arguments ----
 args <- commandArgs(TRUE)
 
 WS <- args[[1]]
@@ -24,18 +34,14 @@ cat("Arguments, WS", WS, ", version ", out_version,", ignore file: ",
 
 
 
-suppressPackageStartupMessages({
-  library(tidyverse)
-  })
 
 
-
-
+# Chromosome sizes ----
 
 ref_cache <- paste0("/home/aw853/project/references/WS", WS)
 path_chr_sizes <- file.path(ref_cache, "chrom.sizes")
 
-# Chromosome sizes ----
+
 cat("Init chr sizes.\n")
 if(file.exists(path_chr_sizes)){
   chr_sizes <- read.delim(path_chr_sizes, col.names=c("name","size"))

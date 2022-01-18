@@ -14,7 +14,7 @@ set -e
 
 # parameters
 WS="281"
-out_version="220114"
+out_version="220118"
 bams_combined="/home/aw853/scratch60/2021-11-08_alignments"
 bams_orig="/SAY/standard/mh588-CC1100-MEDGEN/bulk_alignments/bsn9_bams/"
 
