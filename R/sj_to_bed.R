@@ -13,7 +13,13 @@ if(! WS %in% 230:300){
   stop("WS not recognized: ", WS)
 }
 
-cat("Arguments, WS - ", WS, ", version - ", out_version,"\n")
+outliers_to_ignore_file <- args[[3]]
+stopifnot(file.exists(outliers_to_ignore_file))
+outliers_to_ignore <- read_lines(outliers_to_ignore_file)
+
+
+cat("Arguments, WS", WS, ", version ", out_version,", ignore file: ",
+    outliers_to_ignore, "\n")
 
 
 
@@ -48,6 +54,8 @@ if(file.exists(path_chr_sizes)){
 }
 
 seqlengths <- setNames(chr_sizes$size, chr_sizes$name)
+
+
 
 
 
@@ -117,6 +125,7 @@ cat("Read individual files.\n")
 all_files <- tibble(path = list.files(sj_dir, full.names = TRUE),
                     replicate = stringr::str_split_fixed(basename(path), "\\.", 2)[,1],
                     sample = stringr::str_split_fixed(replicate, "t", 2)[,1]) %>%
+  filter(! sample %in% outliers_to_ignore) %>%
   mutate(sj_file = map(path, read_sj_file)) %>%
   group_by(sample) %>%
   summarize(sj_file_combined = list(combine_sj(sj_file, rowSums))) %>%

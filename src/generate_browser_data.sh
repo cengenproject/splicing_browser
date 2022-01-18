@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --partition=general
 #SBATCH --job-name=gen_browser_data
-#SBATCH -c 6
-#SBATCH --mem=100G
+#SBATCH -c 7
+#SBATCH --mem=110G
 #SBATCH --time=18:10:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=alexis.weinreb@yale.edu
@@ -18,6 +18,8 @@ out_version="220114"
 bams_combined="/home/aw853/scratch60/2021-11-08_alignments"
 bams_orig="/SAY/standard/mh588-CC1100-MEDGEN/bulk_alignments/bsn9_bams/"
 
+outliers_to_ignore="data/outliers_to_ignore.txt"
+
 
 # Initializations
 
@@ -32,11 +34,12 @@ mkdir -p $out_dir
 
 
 
+
 ## Junction processing ----
 
 mkdir $out_dir/sj $out_dir/sj/single_sample $out_dir/sj/single_neuron $out_dir/sj/global
 
-Rscript R/sj_to_bed.R $WS $out_version
+Rscript R/sj_to_bed.R $WS $out_version $outliers_to_ignore
 
 # convert to BigBed
 chr_sizes="/home/aw853/project/references/WS281/chrom.sizes"
@@ -68,7 +71,7 @@ fi
 mkdir $out_dir/coverage $out_dir/coverage/raw_RLEs $out_dir/coverage/single_sample
 mkdir $out_dir/coverage/single_neuron $out_dir/coverage/global
 
-Rscript R/bam_to_bigwig.R $WS $out_version $bams_combined
+Rscript R/bam_to_bigwig.R $WS $out_version $bams_combined $outliers_to_ignore
 
 
 

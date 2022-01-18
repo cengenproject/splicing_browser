@@ -29,7 +29,12 @@ if(! WS %in% 230:300){
 }
 
 
-cat("Arguments, WS - ", WS, ", version - ", out_version, ", input dir - ", in_dir,"\n")
+outliers_to_ignore_file <- args[[4]]
+stopifnot(file.exists(outliers_to_ignore_file))
+outliers_to_ignore <- read_lines(outliers_to_ignore_file)
+
+cat("Arguments, WS", WS, ", version ", out_version, ", input dir: ", in_dir,
+    ", ignore file: ",outliers_to_ignore, "\n")
 
 
 
@@ -44,14 +49,15 @@ output_dir <- paste0("data/outs/",out_version,"_browser/coverage/")
 all_covs <- tibble(path = list.files(in_dir, pattern = "\\.bam$", full.names = TRUE),
                    sample = stringr::str_split_fixed(basename(path), "\\.", 2)[,1],
                    neuron = stringr::str_split_fixed(sample, "r", 2)[,1],
-                   replicate = stringr::str_split_fixed(sample, "r", 2)[,2])
+                   replicate = stringr::str_split_fixed(sample, "r", 2)[,2]) %>%
+  filter(! sample %in% outliers_to_ignore)
 
 
 
 
 # Convert bams to RLEs on disk ----
 
-plan(multicore, workers = 6)
+plan(multicore, workers = 7)
 
 cat("Read bams and save as RLE.\n")
 tic <- proc.time()[["elapsed"]]
