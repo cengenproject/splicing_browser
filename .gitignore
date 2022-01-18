@@ -4,7 +4,9 @@
 .Ruserdata
 intermediates
 slurm*
-data
+data/intermediates
+data/archive
+data/intermediates
 outs
 logs
 presentations

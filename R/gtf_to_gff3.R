@@ -31,5 +31,5 @@ gff_contents$Name[gff_contents$type == "gene"] <- i2s(gff_contents$Name[gff_cont
 
 
 
-rtracklayer::export(gff_contents, paste0("data/c_elegans.WS",WS,".canonical_geneset.gff3"), format = "gff3")
+rtracklayer::export(gff_contents, paste0("data/intermediates/c_elegans.WS",WS,".canonical_geneset.gff3"), format = "gff3")
 
