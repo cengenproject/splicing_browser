@@ -32,6 +32,7 @@ cat("Arguments, WS", WS, ", version ", out_version,", ignore file: ",
     outliers_to_ignore, "\n")
 
 
+sj_dir <- "/SAY/standard/mh588-CC1100-MEDGEN/bulk_alignments/bsn9_junctions/"
 
 
 
@@ -71,7 +72,6 @@ seqlengths <- setNames(chr_sizes$size, chr_sizes$name)
 
 # ~ directories ----
 
-sj_dir <- "/SAY/standard/mh588-CC1100-MEDGEN/bulk_alignments/bsn9_junctions/"
 
 output_dir <- paste0("data/outs/",out_version,"_browser/sj/")
 

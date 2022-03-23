@@ -14,8 +14,8 @@ set -e
 
 # parameters
 WS="281"
-out_version="220118"
-bams_combined="/home/aw853/scratch60/2021-11-08_alignments"
+out_version="220322"
+bams_combined="/home/aw853/scratch60/2022-03-18_alignments"
 bams_orig="/SAY/standard/mh588-CC1100-MEDGEN/bulk_alignments/bsn9_bams/"
 
 outliers_to_ignore="data/outliers_to_ignore.txt"
