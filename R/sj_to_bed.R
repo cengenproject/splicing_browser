@@ -32,6 +32,10 @@ cat("Arguments, WS", WS, ", version ", out_version,", ignore file: ",
     outliers_to_ignore, "\n")
 
 
+# Parameters
+min_reads_min <- 1
+min_reads_max <- 12
+min_reads_sum <- 20
 
 
 
@@ -167,7 +171,7 @@ all_samples <- all_neurons %>%
 
 write_bed(all_samples$sj_file_combined[[1]],
           paste0(output_dir, "global/sum_sj.bed"),
-          min_reads = 20)
+          min_reads = min_reads_sum)
 
 all_samples_max <- all_neurons %>%
   ungroup() %>%
@@ -175,7 +179,7 @@ all_samples_max <- all_neurons %>%
 
 write_bed(all_samples_max$sj_file_combined[[1]],
           paste0(output_dir, "global/max_sj.bed"),
-          min_reads = 20)
+          min_reads = min_reads_max)
 
 
 all_samples_min <- all_neurons %>%
@@ -184,9 +188,7 @@ all_samples_min <- all_neurons %>%
 
 write_bed(all_samples_min$sj_file_combined[[1]],
           paste0(output_dir, "global/min_sj.bed"),
-          min_reads = 1)
-
-
+          min_reads = min_reads_min)
 
 
 cat("done.\n")
