@@ -44,7 +44,9 @@ path_chr_sizes <- file.path(ref_cache, "chrom.sizes")
 
 cat("Init chr sizes.\n")
 if(file.exists(path_chr_sizes)){
-  chr_sizes <- read.delim(path_chr_sizes, col.names=c("name","size"))
+  chr_sizes <- read.delim(path_chr_sizes,
+                          header = FALSE,
+                          col.names=c("name","size"))
 } else{
   pp <- wbData::wb_get_genome_path(WS,
                                    dir_cache = ref_cache)
