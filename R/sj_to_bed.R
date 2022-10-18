@@ -12,23 +12,47 @@ suppressPackageStartupMessages({
   library(tidyverse)
 })
 
+library(optparse)
 
-#~ check arguments ----
-args <- commandArgs(TRUE)
+option_list <- list( 
+  make_option(c("-s", "--sj_path"), type = "character",
+              default = "/SAY/standard/mh588-CC1100-MEDGEN/bulk_alignments/bsn9_junctions/",
+              help = "Path to JS files created by STAR"),
+  make_option(c("-w", "--WS"), type = "integer",
+              help="WS version, in numeric format e.g. 281 for WS281 (999 for tests)"),
+  make_option(c("-i", "--outliers_to_ignore_file"), type="character",
+              default = "",
+              help="Path to file with outlier samples"),
+  make_option(c("-c", "--chrom_sizes"), type="character",
+              default = "chrom_sizes",
+              help="Path to file with chromosome sizes, will be created if it does not exist"),
+  make_option(c("-r", "--ref_cache"), type="character",
+              default = "",
+              help="Path to reference cache (for wbData)"),
+  make_option(c("-o", "--out_version"), type="character",
+              default = Sys.Date(),
+              help="Prefix for output directory name")
+)
 
-WS <- args[[1]]
-out_version <- args[[2]]
 
-if(! WS %in% 230:300){
-  stop("WS not recognized: ", WS)
+# Check arguments
+opt <- parse_args(OptionParser(option_list=option_list))
+
+if(! opt$WS %in% c(999, 230:300)){
+  stop("WS not recognized: ", opt$WS)
 }
 
-outliers_to_ignore_file <- args[[3]]
-stopifnot(file.exists(outliers_to_ignore_file))
-outliers_to_ignore <- read_lines(outliers_to_ignore_file)
+stopifnot(file.exists(opt$outliers_to_ignore_file))
+outliers_to_ignore <- read_lines(opt$outliers_to_ignore_file)
 
 
-cat("Arguments, WS", WS, ", version ", out_version,", ignore file: ",
+
+stopifnot(dir.exists(opt$sj_path))
+
+if(nchar(opt$ref_cache) < 1L) opt$ref_cache <- paste0("/home/aw853/project/references/WS", opt$WS)
+
+
+cat("Arguments, WS", opt$WS, ", version ", opt$out_version,", ignore file: ",
     outliers_to_ignore, "\n")
 
 
@@ -42,10 +66,11 @@ min_reads_sum <- 20
 
 
 
+
 # Chromosome sizes ----
 
-ref_cache <- paste0("/home/aw853/project/references/WS", WS)
-path_chr_sizes <- file.path(ref_cache, "chrom.sizes")
+
+path_chr_sizes <- file.path(opt$ref_cache, "chrom.sizes")
 
 
 cat("Init chr sizes.\n")
@@ -54,8 +79,8 @@ if(file.exists(path_chr_sizes)){
                           header = FALSE,
                           col.names=c("name","size"))
 } else{
-  pp <- wbData::wb_get_genome_path(WS,
-                                   dir_cache = ref_cache)
+  pp <- wbData::wb_get_genome_path(opt$WS,
+                                   dir_cache = opt$ref_cache)
   
   genome <- Biostrings::readDNAStringSet(pp)
   
@@ -79,9 +104,8 @@ seqlengths <- setNames(chr_sizes$size, chr_sizes$name)
 
 # ~ directories ----
 
-sj_dir <- "/SAY/standard/mh588-CC1100-MEDGEN/bulk_alignments/bsn9_junctions/"
 
-output_dir <- paste0("data/outs/",out_version,"_browser/sj/")
+output_dir <- paste0("data/outs/",opt$out_version,"_browser/sj/")
 
 
 #~ functions ----
@@ -143,7 +167,7 @@ filter_sj <- function(sj_tibble, max_sj_length){
 #~ read individual samples ----
 cat("Read individual files.\n")
 
-all_files <- tibble(path = list.files(sj_dir, full.names = TRUE),
+all_files <- tibble(path = list.files(opt$sj_path, full.names = TRUE),
                     replicate = stringr::str_split_fixed(basename(path), "\\.", 2)[,1],
                     sample = stringr::str_split_fixed(replicate, "t", 2)[,1]) %>%
   filter(! sample %in% outliers_to_ignore) %>%

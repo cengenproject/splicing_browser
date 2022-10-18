@@ -14,8 +14,8 @@ set -e
 
 # parameters
 WS="281"
-out_version="220118"
-bams_combined="/home/aw853/scratch60/2021-11-08_alignments"
+out_version="220322"
+bams_combined="/home/aw853/scratch60/2022-03-18_alignments"
 bams_orig="/SAY/standard/mh588-CC1100-MEDGEN/bulk_alignments/bsn9_bams/"
 
 outliers_to_ignore="data/outliers_to_ignore.txt"
@@ -39,10 +39,12 @@ mkdir -p $out_dir
 
 mkdir $out_dir/sj $out_dir/sj/single_sample $out_dir/sj/single_neuron $out_dir/sj/global
 
-Rscript R/sj_to_bed.R $WS $out_version $outliers_to_ignore
+chr_sizes="/home/aw853/project/references/WS281/chrom.sizes"
+
+
+Rscript R/sj_to_bed.R -w $WS -c $chr_sizes -o $out_version -i $outliers_to_ignore
 
 # convert to BigBed
-chr_sizes="/home/aw853/project/references/WS281/chrom.sizes"
 for file in $out_dir/sj/*/*.bed
 do
   bedToBigBed $file $chr_sizes ${file%.bed}.bb

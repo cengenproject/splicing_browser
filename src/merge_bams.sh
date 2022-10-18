@@ -8,6 +8,10 @@
 #SBATCH --mail-user=alexis.weinreb@yale.edu
 
 
+echo "Do not use this script, prefer the updated script in stringtie_quantif/src/prep_alignments.sh which also removes multimappers."
+exit 1
+
+
 # Transfer the bam files merging the technical replicates. Index the results (bai)
 
 module load SAMtools
