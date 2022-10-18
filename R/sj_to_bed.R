@@ -33,6 +33,8 @@ cat("Arguments, WS", WS, ", version ", out_version,", ignore file: ",
 
 
 # Parameters
+max_sj_length <- 25000
+
 min_reads_min <- 1
 min_reads_max <- 12
 min_reads_sum <- 20
@@ -130,6 +132,13 @@ write_bed <- function(sj_file, out_path, min_reads = 2){
   rtracklayer::export(gr, out_path)
 }
 
+filter_sj <- function(sj_tibble, max_sj_length){
+  sj_tibble |>
+    mutate(width = end - start + 1) |>
+    filter(width < max_sj_length) |>
+    select(-width)
+}
+
 
 #~ read individual samples ----
 cat("Read individual files.\n")
@@ -141,6 +150,7 @@ all_files <- tibble(path = list.files(sj_dir, full.names = TRUE),
   mutate(sj_file = map(path, read_sj_file)) %>%
   group_by(sample) %>%
   summarize(sj_file_combined = list(combine_sj(sj_file, rowSums))) %>%
+  mutate(sj_file_combined = map(sj_file_combined, filter_sj, max_sj_length)) %>%
   mutate(out_path = paste0(output_dir, "single_sample/", sample, "_sj.bed"))
 
 
