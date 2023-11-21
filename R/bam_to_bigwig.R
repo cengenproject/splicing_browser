@@ -28,6 +28,7 @@ if(! WS %in% 230:300){
   stop("WS not recognized: ", WS)
 }
 
+stopifnot(dir.exists(in_dir))
 
 outliers_to_ignore_file <- args[[4]]
 stopifnot(file.exists(outliers_to_ignore_file))

@@ -27,12 +27,13 @@ outliers_to_ignore_file <- args[[3]]
 stopifnot(file.exists(outliers_to_ignore_file))
 outliers_to_ignore <- read_lines(outliers_to_ignore_file)
 
+sj_dir <- args[[4]]
+stopifnot(dir.exists(sj_dir))
 
 cat("Arguments, WS", WS, ", version ", out_version,", ignore file: ",
     outliers_to_ignore, "\n")
 
 
-sj_dir <- "/SAY/standard/mh588-CC1100-MEDGEN/bulk_alignments/bsn9_junctions/"
 
 
 

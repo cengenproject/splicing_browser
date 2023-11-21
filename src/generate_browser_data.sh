@@ -1,9 +1,9 @@
 #!/bin/bash
-#SBATCH --partition=general
+#SBATCH --partition=day
 #SBATCH --job-name=gen_browser_data
-#SBATCH -c 7
-#SBATCH --mem=110G
-#SBATCH --time=18:10:00
+#SBATCH -c 12
+#SBATCH --mem=210G
+#SBATCH --time=23:10:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=alexis.weinreb@yale.edu
 
@@ -13,10 +13,10 @@ set -e
 # generate the data to visualize in the genome browser.
 
 # parameters
-WS="281"
-out_version="220322"
-bams_combined="/home/aw853/scratch60/2022-03-18_alignments"
-bams_orig="/SAY/standard/mh588-CC1100-MEDGEN/bulk_alignments/bsn9_bams/"
+WS="289"
+out_version="231116"
+sj_dir="/gpfs/gibbs/pi/hammarlund/CeNGEN/bulk/bulk_alignments/bsn12_junctions"
+bams_dir="/gpfs/gibbs/pi/hammarlund/CeNGEN/bulk/bulk_alignments/bsn12_bams"
 
 outliers_to_ignore="data/outliers_to_ignore.txt"
 
@@ -37,12 +37,12 @@ mkdir -p $out_dir
 
 ## Junction processing ----
 
-mkdir $out_dir/sj $out_dir/sj/single_sample $out_dir/sj/single_neuron $out_dir/sj/global
+mkdir -p $out_dir/sj $out_dir/sj/single_sample $out_dir/sj/single_neuron $out_dir/sj/global
 
-Rscript R/sj_to_bed.R $WS $out_version $outliers_to_ignore
+Rscript R/sj_to_bed.R $WS $out_version $outliers_to_ignore $sj_dir
 
 # convert to BigBed
-chr_sizes="/home/aw853/project/references/WS281/chrom.sizes"
+chr_sizes="/home/aw853/project/references/WS"$WS"/chrom.sizes"
 for file in $out_dir/sj/*/*.bed
 do
   bedToBigBed $file $chr_sizes ${file%.bed}.bb
@@ -53,25 +53,10 @@ done
 
 ## Coverage processing
 
-# merge the bams
+mkdir -p $out_dir/coverage $out_dir/coverage/raw_RLEs $out_dir/coverage/single_sample
+mkdir -p $out_dir/coverage/single_neuron $out_dir/coverage/global
 
-if [ ! -d $bams_combined ]
-then
-  mkdir $bams_combined
-  srun src/merge_bams.sh $bams_orig $bams_combined
-elif [ -z "$(ls -A $bams_combined)" ]
-then
-  srun src/merge_bams.sh $bams_orig $bams_combined
-else
-   echo "bams already combined."
-fi
-
-
-
-mkdir $out_dir/coverage $out_dir/coverage/raw_RLEs $out_dir/coverage/single_sample
-mkdir $out_dir/coverage/single_neuron $out_dir/coverage/global
-
-Rscript R/bam_to_bigwig.R $WS $out_version $bams_combined $outliers_to_ignore
+Rscript R/bam_to_bigwig.R $WS $out_version $bams_dir $outliers_to_ignore
 
 
 
