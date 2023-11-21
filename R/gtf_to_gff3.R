@@ -13,12 +13,10 @@ gids <- wb_load_gene_ids(WS)
 
 
 
-gtf_txdb <- GenomicFeatures::makeTxDbFromGFF(wb_get_gtf_path(WS))
+gtf_txdb <- GenomicFeatures::makeTxDbFromGFF("../stringtie_quantif/data/220322_novel_filt_sorted.gtf")
 
 gff_contents <- rtracklayer::asGFF(gtf_txdb)
 
-# Remove the "exon" entries (only use CDS)
-gff_contents <- gff_contents[gff_contents$type != "exon",]
 
 
 # Correct it to have the fields we want
@@ -30,6 +28,8 @@ gff_contents$Name[gff_contents$type == "gene"] <- i2s(gff_contents$Name[gff_cont
 
 
 
+rtracklayer::export(gff_contents, paste0("data/intermediates/221130_WS",WS,".novel.gff3"), format = "gff3")
 
-rtracklayer::export(gff_contents, paste0("data/intermediates/c_elegans.WS",WS,".canonical_geneset.gff3"), format = "gff3")
+
+
 

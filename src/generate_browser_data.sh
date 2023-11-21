@@ -14,7 +14,7 @@ set -e
 
 # parameters
 WS="289"
-out_version="231116"
+out_version="231121"
 sj_dir="/gpfs/gibbs/pi/hammarlund/CeNGEN/bulk/bulk_alignments/bsn12_junctions"
 bams_dir="/gpfs/gibbs/pi/hammarlund/CeNGEN/bulk/bulk_alignments/bsn12_bams"
 
@@ -39,10 +39,12 @@ mkdir -p $out_dir
 
 mkdir -p $out_dir/sj $out_dir/sj/single_sample $out_dir/sj/single_neuron $out_dir/sj/global
 
-Rscript R/sj_to_bed.R $WS $out_version $outliers_to_ignore $sj_dir
+
+chr_sizes="/home/aw853/project/references/WS"$WS"/chrom.sizes"
+
+Rscript R/sj_to_bed.R -w $WS -c $chr_sizes -o $out_dir/sj/ -i $outliers_to_ignore -s $sj_dir
 
 # convert to BigBed
-chr_sizes="/home/aw853/project/references/WS"$WS"/chrom.sizes"
 for file in $out_dir/sj/*/*.bed
 do
   bedToBigBed $file $chr_sizes ${file%.bed}.bb
@@ -56,7 +58,7 @@ done
 mkdir -p $out_dir/coverage $out_dir/coverage/raw_RLEs $out_dir/coverage/single_sample
 mkdir -p $out_dir/coverage/single_neuron $out_dir/coverage/global
 
-Rscript R/bam_to_bigwig.R $WS $out_version $bams_dir $outliers_to_ignore
+Rscript R/bam_to_bigwig.R $WS $out_dir/coverage/ $bams_dir $outliers_to_ignore
 
 
 

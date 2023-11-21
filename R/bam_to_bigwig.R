@@ -21,7 +21,7 @@ cat("Starting: ", date(), "\n")
 args <- commandArgs(TRUE)
 
 WS <- args[[1]]
-out_version <- args[[2]]
+output_dir <- args[[2]]
 in_dir <- args[[3]]
 
 if(! WS %in% 230:300){
@@ -34,15 +34,8 @@ outliers_to_ignore_file <- args[[4]]
 stopifnot(file.exists(outliers_to_ignore_file))
 outliers_to_ignore <- read_lines(outliers_to_ignore_file)
 
-cat("Arguments, WS", WS, ", version ", out_version, ", input dir: ", in_dir,
+cat("Arguments, WS", WS, ", output dir ", output_dir, ", input dir: ", in_dir,
     ", ignore file: ",outliers_to_ignore, "\n")
-
-
-
-
-# bam_dir <- "/home/aw853/scratch60/2021-11-08_alignments"
-
-output_dir <- paste0("data/outs/",out_version,"_browser/coverage/")
 
 
 
@@ -74,8 +67,8 @@ future_walk2(all_covs$path,
                     chrom_names <- names(cur_rle)
                     cur_rle <- 1e6 * cur_rle / length(cur_bam) # as CPM
                     names(cur_rle) <- chrom_names
-                    saveRDS(cur_rle,
-                            paste0(output_dir,"raw_RLEs/",.y,".rds"))
+                    qs::qsave(cur_rle,
+                            paste0(output_dir,"raw_RLEs/",.y,".qs"))
                   }
                 })
 cat("----toc: ", proc.time()[["elapsed"]] - tic,"\n\n"); rm(tic)
@@ -85,7 +78,7 @@ plan(sequential)
 # Load RLEs ----
 cat("Read RLEs.\n")
 all_covs <- all_covs %>%
-  mutate(coverage = map(sample, ~ readRDS(paste0(output_dir,"raw_RLEs/",.x,".rds"))))
+  mutate(coverage = map(sample, ~ qs::qread(paste0(output_dir,"raw_RLEs/",.x,".qs"))))
 
 
 # Write single samples BW ----
@@ -139,5 +132,8 @@ cat("----global done: ", proc.time()[["elapsed"]] - tic,"\n\n")
 
 
 
-cat("\n\nAll done.\n")
+cat("\n\nAll done.\n\nAny warnings:\n")
 
+warnings()
+
+cat("\n ---- \n")

@@ -12,27 +12,55 @@ suppressPackageStartupMessages({
   library(tidyverse)
 })
 
+library(optparse)
 
-#~ check arguments ----
-args <- commandArgs(TRUE)
+option_list <- list( 
+  make_option(c("-s", "--sj_path"), type = "character",
+              default = "/SAY/standard/mh588-CC1100-MEDGEN/bulk_alignments/bsn9_junctions/",
+              help = "Path to JS files created by STAR"),
+  make_option(c("-w", "--WS"), type = "integer",
+              help="WS version, in numeric format e.g. 281 for WS281 (999 for tests)"),
+  make_option(c("-i", "--outliers_to_ignore_file"), type="character",
+              default = "",
+              help="Path to file with outlier samples"),
+  make_option(c("-c", "--chrom_sizes"), type="character",
+              default = "chrom_sizes",
+              help="Path to file with chromosome sizes, will be created if it does not exist"),
+  make_option(c("-r", "--ref_cache"), type="character",
+              default = "",
+              help="Path to reference cache (for wbData)"),
+  make_option(c("-o", "--output_dir"), type="character",
+              default = paste0("data/outs/",Sys.Date(),"_browser/sj/"),
+              help="Output directory name")
+)
 
-WS <- args[[1]]
-out_version <- args[[2]]
 
-if(! WS %in% 230:300){
-  stop("WS not recognized: ", WS)
+# Check arguments
+opt <- parse_args(OptionParser(option_list=option_list))
+
+if(! opt$WS %in% c(999, 230:300)){
+  stop("WS not recognized: ", opt$WS)
 }
 
-outliers_to_ignore_file <- args[[3]]
-stopifnot(file.exists(outliers_to_ignore_file))
-outliers_to_ignore <- read_lines(outliers_to_ignore_file)
+stopifnot(file.exists(opt$outliers_to_ignore_file))
+outliers_to_ignore <- read_lines(opt$outliers_to_ignore_file)
 
-sj_dir <- args[[4]]
-stopifnot(dir.exists(sj_dir))
 
-cat("Arguments, WS", WS, ", version ", out_version,", ignore file: ",
+stopifnot(dir.exists(opt$sj_path))
+
+if(nchar(opt$ref_cache) < 1L) opt$ref_cache <- paste0("/home/aw853/project/references/WS", opt$WS)
+
+
+cat("Arguments, WS", opt$WS, ", output dir ", opt$output_dir,", ignore file: ",
     outliers_to_ignore, "\n")
 
+
+# Parameters
+max_sj_length <- 25000
+
+min_reads_min <- 1
+min_reads_max <- 12
+min_reads_sum <- 20
 
 
 
@@ -40,16 +68,18 @@ cat("Arguments, WS", WS, ", version ", out_version,", ignore file: ",
 
 # Chromosome sizes ----
 
-ref_cache <- paste0("/home/aw853/project/references/WS", WS)
-path_chr_sizes <- file.path(ref_cache, "chrom.sizes")
+
+path_chr_sizes <- file.path(opt$ref_cache, "chrom.sizes")
 
 
 cat("Init chr sizes.\n")
 if(file.exists(path_chr_sizes)){
-  chr_sizes <- read.delim(path_chr_sizes, col.names=c("name","size"))
+  chr_sizes <- read.delim(path_chr_sizes,
+                          header = FALSE,
+                          col.names=c("name","size"))
 } else{
-  pp <- wbData::wb_get_genome_path(WS,
-                                   dir_cache = ref_cache)
+  pp <- wbData::wb_get_genome_path(opt$WS,
+                                   dir_cache = opt$ref_cache)
   
   genome <- Biostrings::readDNAStringSet(pp)
   
@@ -69,12 +99,6 @@ seqlengths <- setNames(chr_sizes$size, chr_sizes$name)
 
 
 # Read SJ files ----
-
-
-# ~ directories ----
-
-
-output_dir <- paste0("data/outs/",out_version,"_browser/sj/")
 
 
 #~ functions ----
@@ -125,18 +149,26 @@ write_bed <- function(sj_file, out_path, min_reads = 2){
   rtracklayer::export(gr, out_path)
 }
 
+filter_sj <- function(sj_tibble, max_sj_length){
+  sj_tibble |>
+    mutate(width = end - start + 1) |>
+    filter(width < max_sj_length) |>
+    select(-width)
+}
+
 
 #~ read individual samples ----
 cat("Read individual files.\n")
 
-all_files <- tibble(path = list.files(sj_dir, full.names = TRUE),
+all_files <- tibble(path = list.files(opt$sj_path, full.names = TRUE),
                     replicate = stringr::str_split_fixed(basename(path), "\\.", 2)[,1],
                     sample = stringr::str_split_fixed(replicate, "t", 2)[,1]) %>%
   filter(! sample %in% outliers_to_ignore) %>%
   mutate(sj_file = map(path, read_sj_file)) %>%
   group_by(sample) %>%
   summarize(sj_file_combined = list(combine_sj(sj_file, rowSums))) %>%
-  mutate(out_path = paste0(output_dir, "single_sample/", sample, "_sj.bed"))
+  mutate(sj_file_combined = map(sj_file_combined, filter_sj, max_sj_length)) %>%
+  mutate(out_path = paste0(opt$output_dir, "single_sample/", sample, "_sj.bed"))
 
 
 
@@ -152,7 +184,7 @@ all_neurons <- all_files %>%
   mutate(neuron = stringr::str_split_fixed(sample, "r", 2)[,1]) %>%
   group_by(neuron) %>%
   summarize(sj_file_combined = list(combine_sj(sj_file_combined, rowSums))) %>%
-  mutate(out_path = paste0(output_dir, "single_neuron/", neuron, "_sj.bed"))
+  mutate(out_path = paste0(opt$output_dir, "single_neuron/", neuron, "_sj.bed"))
 
 walk2(all_neurons$sj_file_combined, all_neurons$out_path, write_bed)
 
@@ -165,16 +197,16 @@ all_samples <- all_neurons %>%
   summarize(sj_file_combined = list(combine_sj(sj_file_combined, rowSums)))
 
 write_bed(all_samples$sj_file_combined[[1]],
-          paste0(output_dir, "global/sum_sj.bed"),
-          min_reads = 20)
+          paste0(opt$output_dir, "global/sum_sj.bed"),
+          min_reads = min_reads_sum)
 
 all_samples_max <- all_neurons %>%
   ungroup() %>%
   summarize(sj_file_combined = list(combine_sj(sj_file_combined, matrixStats::rowMaxs)))
 
 write_bed(all_samples_max$sj_file_combined[[1]],
-          paste0(output_dir, "global/max_sj.bed"),
-          min_reads = 20)
+          paste0(opt$output_dir, "global/max_sj.bed"),
+          min_reads = min_reads_max)
 
 
 all_samples_min <- all_neurons %>%
@@ -182,10 +214,8 @@ all_samples_min <- all_neurons %>%
   summarize(sj_file_combined = list(combine_sj(sj_file_combined, matrixStats::rowMins)))
 
 write_bed(all_samples_min$sj_file_combined[[1]],
-          paste0(output_dir, "global/min_sj.bed"),
-          min_reads = 1)
-
-
+          paste0(opt$output_dir, "global/min_sj.bed"),
+          min_reads = min_reads_min)
 
 
 cat("done.\n")
