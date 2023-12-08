@@ -2,8 +2,8 @@
 #SBATCH --partition=day
 #SBATCH --job-name=gen_browser_data
 #SBATCH -c 12
-#SBATCH --mem=210G
-#SBATCH --time=23:10:00
+#SBATCH --mem=160G
+#SBATCH --time=6:10:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=alexis.weinreb@yale.edu
 
