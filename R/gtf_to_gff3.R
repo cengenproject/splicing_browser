@@ -7,15 +7,14 @@
 library(wbData)
 library(tidyverse)
 
-WS <- 281
+WS <- 289
 
 gids <- wb_load_gene_ids(WS)
 
 
 
-gtf_txdb <- GenomicFeatures::makeTxDbFromGFF("../stringtie_quantif/data/220322_novel_filt_sorted.gtf")
 
-gff_contents <- rtracklayer::asGFF(gtf_txdb)
+gff_contents <- rtracklayer::asGFF(wb_load_TxDb(WS))
 
 
 
@@ -27,8 +26,16 @@ gff_contents$Name[gff_contents$type == "gene"] <- i2s(gff_contents$Name[gff_cont
                                                       warn_missing = TRUE)
 
 
+# sort does not fully sort
+gff_contents_sorted <- GenomicRanges::sort(gff_contents, ignore.strand = TRUE)
+gff_contents_sorted |> GenomicRanges::start() |> diff() |> sign() |> table()
 
-rtracklayer::export(gff_contents, paste0("data/intermediates/221130_WS",WS,".novel.gff3"), format = "gff3")
+# all_starts <- GenomicRanges::start(gff_contents)
+# gff_contents_sorted <- gff_contents[order(all_starts)]
+# gff_contents_sorted |> GenomicRanges::start() |> diff() |> sign() |> table()
+
+rtracklayer::export(gff_contents_sorted, paste0("data/intermediates/231212_WS",WS,".canonical_geneset.gff3"), format = "gff3")
+
 
 
 
