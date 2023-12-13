@@ -29,9 +29,9 @@ option_list <- list(
   make_option(c("-r", "--ref_cache"), type="character",
               default = "",
               help="Path to reference cache (for wbData)"),
-  make_option(c("-o", "--out_version"), type="character",
-              default = Sys.Date(),
-              help="Prefix for output directory name")
+  make_option(c("-o", "--output_dir"), type="character",
+              default = paste0("data/outs/",Sys.Date(),"_browser/sj/"),
+              help="Output directory name")
 )
 
 
@@ -52,7 +52,8 @@ stopifnot(dir.exists(opt$sj_path))
 if(nchar(opt$ref_cache) < 1L) opt$ref_cache <- paste0("/home/aw853/project/references/WS", opt$WS)
 
 
-cat("Arguments, WS", opt$WS, ", version ", opt$out_version,", ignore file: ",
+
+cat("Arguments, WS", opt$WS, ", output dir ", opt$output_dir,", ignore file: ",
     outliers_to_ignore, "\n")
 
 
@@ -101,11 +102,6 @@ seqlengths <- setNames(chr_sizes$size, chr_sizes$name)
 
 # Read SJ files ----
 
-
-# ~ directories ----
-
-
-output_dir <- paste0("data/outs/",opt$out_version,"_browser/sj/")
 
 
 #~ functions ----
@@ -175,7 +171,7 @@ all_files <- tibble(path = list.files(opt$sj_path, full.names = TRUE),
   group_by(sample) %>%
   summarize(sj_file_combined = list(combine_sj(sj_file, rowSums))) %>%
   mutate(sj_file_combined = map(sj_file_combined, filter_sj, max_sj_length)) %>%
-  mutate(out_path = paste0(output_dir, "single_sample/", sample, "_sj.bed"))
+  mutate(out_path = paste0(opt$output_dir, "single_sample/", sample, "_sj.bed"))
 
 
 
@@ -191,7 +187,7 @@ all_neurons <- all_files %>%
   mutate(neuron = stringr::str_split_fixed(sample, "r", 2)[,1]) %>%
   group_by(neuron) %>%
   summarize(sj_file_combined = list(combine_sj(sj_file_combined, rowSums))) %>%
-  mutate(out_path = paste0(output_dir, "single_neuron/", neuron, "_sj.bed"))
+  mutate(out_path = paste0(opt$output_dir, "single_neuron/", neuron, "_sj.bed"))
 
 walk2(all_neurons$sj_file_combined, all_neurons$out_path, write_bed)
 
@@ -204,7 +200,7 @@ all_samples <- all_neurons %>%
   summarize(sj_file_combined = list(combine_sj(sj_file_combined, rowSums)))
 
 write_bed(all_samples$sj_file_combined[[1]],
-          paste0(output_dir, "global/sum_sj.bed"),
+          paste0(opt$output_dir, "global/sum_sj.bed"),
           min_reads = min_reads_sum)
 
 all_samples_max <- all_neurons %>%
@@ -212,7 +208,7 @@ all_samples_max <- all_neurons %>%
   summarize(sj_file_combined = list(combine_sj(sj_file_combined, matrixStats::rowMaxs)))
 
 write_bed(all_samples_max$sj_file_combined[[1]],
-          paste0(output_dir, "global/max_sj.bed"),
+          paste0(opt$output_dir, "global/max_sj.bed"),
           min_reads = min_reads_max)
 
 
@@ -221,7 +217,7 @@ all_samples_min <- all_neurons %>%
   summarize(sj_file_combined = list(combine_sj(sj_file_combined, matrixStats::rowMins)))
 
 write_bed(all_samples_min$sj_file_combined[[1]],
-          paste0(output_dir, "global/min_sj.bed"),
+          paste0(opt$output_dir, "global/min_sj.bed"),
           min_reads = min_reads_min)
 
 
