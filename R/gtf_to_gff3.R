@@ -26,13 +26,9 @@ gff_contents$Name[gff_contents$type == "gene"] <- i2s(gff_contents$Name[gff_cont
                                                       warn_missing = TRUE)
 
 
-# sort does not fully sort
+# sort
 gff_contents_sorted <- GenomicRanges::sort(gff_contents, ignore.strand = TRUE)
-gff_contents_sorted |> GenomicRanges::start() |> diff() |> sign() |> table()
 
-# all_starts <- GenomicRanges::start(gff_contents)
-# gff_contents_sorted <- gff_contents[order(all_starts)]
-# gff_contents_sorted |> GenomicRanges::start() |> diff() |> sign() |> table()
 
 rtracklayer::export(gff_contents_sorted, paste0("data/intermediates/231212_WS",WS,".canonical_geneset.gff3"), format = "gff3")
 
