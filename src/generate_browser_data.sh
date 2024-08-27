@@ -14,9 +14,17 @@ set -e
 
 # parameters
 WS="289"
-out_version="231121"
-sj_dir="/gpfs/gibbs/pi/hammarlund/CeNGEN/bulk/bulk_alignments/bsn12_junctions"
-bams_dir="/gpfs/gibbs/pi/hammarlund/CeNGEN/bulk/bulk_alignments/bsn12_bams"
+
+# Main CeNGEN data
+#out_version="231121"
+#sj_dir="/gpfs/gibbs/pi/hammarlund/CeNGEN/bulk/bulk_alignments/bsn12_junctions"
+#bams_dir="/gpfs/gibbs/pi/hammarlund/CeNGEN/bulk/bulk_alignments/bsn12_bams"
+
+# Koterniak (2020) data
+out_version="240827"
+sj_dir="/gpfs/gibbs/pi/hammarlund/CeNGEN/bulk/bulk_alignments/koterniak_junctions"
+bams_dir="/gpfs/gibbs/pi/hammarlund/CeNGEN/bulk/bulk_alignments/koterniak_bams"
+
 
 outliers_to_ignore="data/outliers_to_ignore.txt"
 
